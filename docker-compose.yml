@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+
+  # Development container
+  dev:
+    build:
+      context: .
+      dockerfile: example_project/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    working_dir: /app/example_project
+    tty: true
+    stdin_open: true
+    depends_on:
+      - redis
+    command: "/bin/bash"
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
