@@ -1,0 +1,2 @@
+include README.md
+recursive-include dj_celery_panel/templates *
