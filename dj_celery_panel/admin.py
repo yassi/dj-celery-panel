@@ -16,12 +16,12 @@ class CeleryPanelPlaceholderAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        # Allow staff members to "view" the Cache panel
+        # Allow staff members to "view" the Celery panel
         return request.user.is_staff
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_view_permission(self, request, obj=None):
-        # Allow staff members to view the Cache panel
+        # Allow staff members to view the Celery panel
         return request.user.is_staff

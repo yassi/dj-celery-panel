@@ -6,13 +6,12 @@ from django.contrib import admin
 @staff_member_required
 def index(request):
     """
-    Display all configured cache instances with their panel abilities.
+    Display Celery panel dashboard.
     """
-    # Build cache info with panel abilities
     context = admin.site.each_context(request)
     context.update(
         {
-            "title": "DJ Cache Panel - Instances",
+            "title": "Django Celery Panel",
         }
     )
     return render(request, "admin/dj_celery_panel/index.html", context)
