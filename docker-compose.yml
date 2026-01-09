@@ -1,9 +1,22 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 
   # Development container
-  dev:
+  dev: &dev
     build:
       context: .
       dockerfile: example_project/Dockerfile
@@ -18,16 +31,32 @@ services:
       - redis
     command: "/bin/bash"
 
-  postgres:
-    image: postgres:16
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+  default_worker:
+    <<: *dev
+    tty: false
+    ports: []
+    command: celery -A example_project worker -l info
 
-  redis:
-    image: redis:7
+  email_worker:
+    <<: *dev
+    tty: false
+    ports: []
+    command: celery -A example_project worker -l info
+
+  other_worker:
+    <<: *dev
+    tty: false
+    ports: []
+    command: celery -A example_project worker -l info
+
+  beat:
+    <<: *dev
+    tty: false
+    ports: []
+    command: celery -A example_project beat -l info
+
+  flower:
+    <<: *dev
     ports:
-      - "6379:6379"
+      - "5555:5555"
+    command: celery flower -A example_project --broker=redis://redis:6379/0

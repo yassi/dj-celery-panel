@@ -3,6 +3,67 @@
 
 {% block content %}
 <div class="module">
-    <h2>DJ Celery Panel</h2>
+    <h2>{% trans 'Celery Status' %}</h2>
+    
+    
+    <div class="instance-stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">{% trans 'Active Workers' %}</div>
+                <div class="stat-value {% if celery_status.active_workers_count > 0 %}stat-success{% else %}stat-disabled{% endif %}">
+                    {{ celery_status.active_workers_count }}
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-label">{% trans 'Registered Tasks' %}</div>
+                <div class="stat-value">
+                    {{ celery_status.registered_tasks_count }}
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-label">{% trans 'Active Tasks' %}</div>
+                <div class="stat-value {% if celery_status.active_tasks_count and celery_status.active_tasks_count > 0 %}stat-warning{% endif %}">
+                    {% if celery_status.active_tasks_count is not None %}
+                        {{ celery_status.active_tasks_count }}
+                    {% else %}
+                        <span style="opacity: 0.5;">N/A</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-label">{% trans 'Reserved Tasks' %}</div>
+                <div class="stat-value">
+                    {% if celery_status.reserved_tasks_count is not None %}
+                        {{ celery_status.reserved_tasks_count }}
+                    {% else %}
+                        <span style="opacity: 0.5;">N/A</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-label">{% trans 'Scheduled Tasks' %}</div>
+                <div class="stat-value">
+                    {% if celery_status.scheduled_tasks_count is not None %}
+                        {{ celery_status.scheduled_tasks_count }}
+                    {% else %}
+                        <span style="opacity: 0.5;">N/A</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if celery_status.workers %}
+        <h3>{% trans 'Active Workers' %}</h3>
+        <ul>
+            {% for worker in celery_status.workers %}
+                <li><code>{{ worker }}</code></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </div>
 {% endblock %}

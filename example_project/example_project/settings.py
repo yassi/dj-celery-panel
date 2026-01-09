@@ -134,6 +134,14 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Celery Configuration (using modern Celery 4.x+ naming)
+CELERY_BROKER_URL = "redis://redis:6379/0"
+
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "visibility_timeout": 3600,
+}
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
