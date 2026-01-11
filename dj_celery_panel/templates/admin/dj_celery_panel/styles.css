@@ -564,6 +564,35 @@
     color: var(--body-fg, #333);
 }
 
+/* Configuration section styles */
+.config-section-title {
+    margin: 15px 0 5px 0;
+    font-weight: 600;
+    font-size: 0.95em;
+    color: var(--body-quiet-color, #666);
+}
+
+.config-value-muted {
+    opacity: 0.6;
+}
+
+.config-value-enabled {
+    color: var(--link-fg, #417690);
+}
+
+.config-value-disabled {
+    color: var(--link-fg, #417690);
+}
+
+.config-value-warning {
+    color: #ba2121;
+}
+
+.config-url-code {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
     .ability-supported {
@@ -580,6 +609,22 @@
     }
 
     .backend-error {
+        color: #cc2936;
+    }
+
+    .config-section-title {
+        color: var(--body-quiet-color, #999);
+    }
+
+    .config-value-enabled {
+        color: var(--link-fg, #79aec8);
+    }
+
+    .config-value-disabled {
+        color: var(--link-fg, #79aec8);
+    }
+
+    .config-value-warning {
         color: #cc2936;
     }
 }

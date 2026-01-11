@@ -1,0 +1,22 @@
+{% load i18n %}
+{% comment %}
+Reusable partial for displaying configuration string values.
+
+Parameters:
+- label: The configuration label (e.g., "Broker:")
+- value: The value to display
+- fallback: (optional) Text to show if value is empty/None (default: "Not configured")
+- code: (optional) Code/URL to display after the value
+- suffix: (optional) Suffix to append to the value (e.g., "s" for seconds)
+{% endcomment %}
+<li>
+    <strong>{{ label }}</strong> 
+    {% if value %}
+        {{ value }}{% if suffix %}{{ suffix }}{% endif %}
+        {% if code %}
+        <code class="config-url-code">{{ code }}</code>
+        {% endif %}
+    {% else %}
+        <span class="config-value-muted">{% if fallback %}{{ fallback }}{% else %}{% trans 'Not configured' %}{% endif %}</span>
+    {% endif %}
+</li>

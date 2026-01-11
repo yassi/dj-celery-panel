@@ -1,0 +1,27 @@
+{% comment %}
+Reusable partial for displaying boolean configuration values.
+
+Parameters:
+- label: The configuration label (e.g., "Task Acks Late:")
+- value: The boolean value to display
+- invert: (optional) If true, shows "enabled" as muted and "disabled" as positive (default: false)
+- warning: (optional) If true and enabled, shows warning styling (default: false)
+{% endcomment %}
+<li>
+    <strong>{{ label }}</strong> 
+    {% if warning and value %}
+        <span class="config-value-warning">⚠️ Enabled{% if warning_text %} ({{ warning_text }}){% endif %}</span>
+    {% elif value %}
+        {% if invert %}
+            <span class="config-value-muted">✓ Enabled</span>
+        {% else %}
+            <span class="config-value-enabled">✓ Enabled</span>
+        {% endif %}
+    {% else %}
+        {% if invert %}
+            <span class="config-value-disabled">✗ Disabled</span>
+        {% else %}
+            <span class="config-value-muted">✗ Disabled</span>
+        {% endif %}
+    {% endif %}
+</li>
