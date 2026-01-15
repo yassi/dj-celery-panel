@@ -166,6 +166,7 @@ class CeleryInspector:
         status = {
             "celery_available": False,
             "workers": [],
+            "workers_detail": [],  # Detailed worker information for table
             "active_workers_count": 0,
             "registered_tasks_count": 0,
             "active_tasks_count": None,  # Not available in lightweight mode
@@ -193,6 +194,35 @@ class CeleryInspector:
             status["celery_available"] = True
             status["workers"] = list(worker_stats.keys())
             status["active_workers_count"] = len(worker_stats)
+
+            # Extract detailed worker information from stats
+            workers_detail = []
+            for worker_name, stats in worker_stats.items():
+                worker_info = {
+                    "name": worker_name,
+                    "status": "online",
+                    "pool": stats.get("pool", {}).get("implementation", "N/A"),
+                    "concurrency": stats.get("pool", {}).get("max-concurrency", "N/A"),
+                    "prefetch_count": stats.get("prefetch_count", "N/A"),
+                    "total_tasks": stats.get("total", {}).values()
+                    if isinstance(stats.get("total"), dict)
+                    else [],
+                    "pid": stats.get("pid", "N/A"),
+                    "clock": stats.get("clock", "N/A"),
+                    "rusage": stats.get("rusage", {}),
+                }
+
+                # Calculate total tasks executed (sum of all task counts)
+                if isinstance(stats.get("total"), dict):
+                    worker_info["total_tasks_executed"] = sum(
+                        stats.get("total", {}).values()
+                    )
+                else:
+                    worker_info["total_tasks_executed"] = 0
+
+                workers_detail.append(worker_info)
+
+            status["workers_detail"] = workers_detail
 
             # Count registered tasks (this is a local operation, not a broker call)
             status["registered_tasks_count"] = len(list(self.app.tasks.keys()))

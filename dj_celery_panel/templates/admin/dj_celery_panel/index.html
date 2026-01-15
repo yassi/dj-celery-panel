@@ -57,58 +57,97 @@
         </div>
     </div>
     
-    {% if celery_status.config %}
-    <div class="abilities-legend">
-        <h3 class="abilities-legend-title">{% trans 'Configuration Information' %}</h3>
+    <div class="workers-config-grid">
+        <div class="workers-section">
+            <div class="module">
+                <h2>{% trans 'Active Workers' %}</h2>
+                <table class="workers-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Worker Name' %}</th>
+                            <th>{% trans 'Status' %}</th>
+                            <th>{% trans 'Pool' %}</th>
+                            <th>{% trans 'Concurrency' %}</th>
+                            <th>{% trans 'Prefetch Count' %}</th>
+                            <th>{% trans 'Tasks Executed' %}</th>
+                            <th>{% trans 'PID' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if celery_status.workers_detail %}
+                            {% for worker in celery_status.workers_detail %}
+                            <tr>
+                                <td><code class="worker-name">{{ worker.name }}</code></td>
+                                <td><span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span></td>
+                                <td>{{ worker.pool }}</td>
+                                <td>{{ worker.concurrency }}</td>
+                                <td>{{ worker.prefetch_count }}</td>
+                                <td>{{ worker.total_tasks_executed }}</td>
+                                <td>{{ worker.pid }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="empty-state-row">
+                                <td colspan="7" class="empty-state-message">
+                                    <div class="empty-state-content">
+                                        <span class="empty-state-icon">⚠️</span>
+                                        <p class="empty-state-title">{% trans 'No Workers Running' %}</p>
+                                        <p class="empty-state-text">{% trans 'Start a Celery worker to process tasks.' %}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
-        <h4 class="config-section-title">{% trans 'Connection & Serialization' %}</h4>
-        <ul class="abilities-legend-list">
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Broker:") value=celery_status.config.broker_type %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Backend:") value=celery_status.config.result_backend_type code=celery_status.config.result_backend %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Timezone:") value=celery_status.config.timezone fallback=_("UTC (default)") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Serializer:") value=celery_status.config.task_serializer fallback=_("json (default)") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Serializer:") value=celery_status.config.result_serializer fallback=_("json (default)") %}
-            {% if celery_status.config.accept_content %}
-                {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value=celery_status.config.accept_content|join:", " fallback=_("json (default)") %}
-            {% else %}
-                {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value="" fallback=_("json (default)") %}
-            {% endif %}
-        </ul>
-        
-        <h4 class="config-section-title">{% trans 'Task Execution' %}</h4>
-        <ul class="abilities-legend-list">
-            {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Task Acks Late:") value=celery_status.config.task_acks_late %}
-            {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Track Started:") value=celery_status.config.task_track_started %}
-            {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Ignore Result:") value=celery_status.config.task_ignore_result %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Time Limit:") value=celery_status.config.task_time_limit suffix="s" fallback=_("None (unlimited)") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Soft Time Limit:") value=celery_status.config.task_soft_time_limit suffix="s" fallback=_("None") %}
-            {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Always Eager:") value=celery_status.config.task_always_eager warning=True warning_text="Testing Mode" %}
-        </ul>
-        
-        <h4 class="config-section-title">{% trans 'Queue & Routing' %}</h4>
-        <ul class="abilities-legend-list">
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Queue:") value=celery_status.config.default_queue fallback=_("celery (default)") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Exchange:") value=celery_status.config.default_exchange %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Routing Key:") value=celery_status.config.default_routing_key %}
-            {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Create Missing Queues:") value=celery_status.config.create_missing_queues %}
-        </ul>
-        
-        <h4 class="config-section-title">{% trans 'Worker Settings' %}</h4>
-        <ul class="abilities-legend-list">
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Prefetch Multiplier:") value=celery_status.config.worker_prefetch_multiplier fallback=_("4 (default)") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Max Tasks Per Child:") value=celery_status.config.worker_max_tasks_per_child fallback=_("Unlimited") %}
-            {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Expires:") value=celery_status.config.result_expires fallback=_("1 day (default)") %}
-        </ul>
+        {% if celery_status.config %}
+        <div class="config-section">
+            <div class="abilities-legend">
+                <h3 class="abilities-legend-title">{% trans 'Configuration Information' %}</h3>
+                
+                <h4 class="config-section-title">{% trans 'Connection & Serialization' %}</h4>
+                <ul class="abilities-legend-list">
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Broker:") value=celery_status.config.broker_type %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Backend:") value=celery_status.config.result_backend_type %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Timezone:") value=celery_status.config.timezone fallback=_("UTC (default)") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Serializer:") value=celery_status.config.task_serializer fallback=_("json (default)") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Serializer:") value=celery_status.config.result_serializer fallback=_("json (default)") %}
+                    {% if celery_status.config.accept_content %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value=celery_status.config.accept_content|join:", " fallback=_("json (default)") %}
+                    {% else %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value="" fallback=_("json (default)") %}
+                    {% endif %}
+                </ul>
+                
+                <h4 class="config-section-title">{% trans 'Task Execution' %}</h4>
+                <ul class="abilities-legend-list">
+                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Task Acks Late:") value=celery_status.config.task_acks_late %}
+                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Track Started:") value=celery_status.config.task_track_started %}
+                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Ignore Result:") value=celery_status.config.task_ignore_result %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Time Limit:") value=celery_status.config.task_time_limit suffix="s" fallback=_("None (unlimited)") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Soft Time Limit:") value=celery_status.config.task_soft_time_limit suffix="s" fallback=_("None") %}
+                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Always Eager:") value=celery_status.config.task_always_eager warning=True warning_text="Testing Mode" %}
+                </ul>
+                
+                <h4 class="config-section-title">{% trans 'Queue & Routing' %}</h4>
+                <ul class="abilities-legend-list">
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Queue:") value=celery_status.config.default_queue fallback=_("celery (default)") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Exchange:") value=celery_status.config.default_exchange %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Routing Key:") value=celery_status.config.default_routing_key %}
+                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Create Missing Queues:") value=celery_status.config.create_missing_queues %}
+                </ul>
+                
+                <h4 class="config-section-title">{% trans 'Worker Settings' %}</h4>
+                <ul class="abilities-legend-list">
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Prefetch Multiplier:") value=celery_status.config.worker_prefetch_multiplier fallback=_("4 (default)") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Max Tasks Per Child:") value=celery_status.config.worker_max_tasks_per_child fallback=_("Unlimited") %}
+                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Expires:") value=celery_status.config.result_expires fallback=_("1 day (default)") %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-    
-    {% if celery_status.workers %}
-        <h3>{% trans 'Active Workers' %}</h3>
-        <ul>
-            {% for worker in celery_status.workers %}
-                <li><code>{{ worker }}</code></li>
-            {% endfor %}
-        </ul>
-    {% endif %}
 </div>
 {% endblock %}

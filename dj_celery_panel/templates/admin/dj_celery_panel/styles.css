@@ -108,6 +108,27 @@
     border-color: var(--message-warning-border, #ffeeba);
 }
 
+/* Dark mode support for messages */
+@media (prefers-color-scheme: dark) {
+    .messagelist .success {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #4caf50;
+        border-color: rgba(40, 167, 69, 0.4);
+    }
+
+    .messagelist .error {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #ef5350;
+        border-color: rgba(220, 53, 69, 0.4);
+    }
+
+    .messagelist .warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border-color: rgba(255, 193, 7, 0.4);
+    }
+}
+
 /* ===== INSTANCE OVERVIEW STYLES ===== */
 
 .instance-stats {
@@ -711,4 +732,212 @@
 .inline-edit-btn:disabled:hover {
     background-color: #ccc;
     transform: none;
+}
+
+/* ===== WORKERS AND CONFIG GRID LAYOUT ===== */
+
+.workers-config-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.workers-section {
+    min-width: 0; /* Prevents grid blowout */
+}
+
+.config-section {
+    min-width: 0; /* Prevents grid blowout */
+}
+
+.config-section .abilities-legend {
+    margin-top: 0;
+    height: 100%;
+}
+
+.config-section .abilities-legend-title {
+    font-size: 1.1em;
+}
+
+.config-section .config-section-title {
+    font-size: 0.9em;
+    margin-top: 12px;
+}
+
+.config-section .abilities-legend-list {
+    font-size: 0.9em;
+}
+
+.config-section .abilities-legend-list li {
+    margin-bottom: 4px;
+}
+
+/* Responsive layout - stack on smaller screens */
+@media (max-width: 1024px) {
+    .workers-config-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .config-section .abilities-legend {
+        margin-top: 20px;
+    }
+}
+
+/* ===== WORKERS TABLE STYLES ===== */
+
+.workers-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: var(--body-bg, #fff);
+    table-layout: auto;
+}
+
+.workers-section .module {
+    overflow-x: auto;
+}
+
+.workers-table thead {
+    background: var(--darkened-bg, #f8f8f8);
+    border-bottom: 2px solid var(--border-color, #ddd);
+}
+
+.workers-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--body-fg, #333);
+    border-bottom: 1px solid var(--border-color, #ddd);
+}
+
+.workers-table tbody tr {
+    border-bottom: 1px solid var(--border-color, #eee);
+    transition: background-color 0.2s ease;
+}
+
+.workers-table tbody tr:hover {
+    background: var(--darkened-bg, #f8f8f8);
+}
+
+.workers-table td {
+    padding: 10px 12px;
+    color: var(--body-fg, #333);
+    font-size: 0.9em;
+}
+
+.worker-name {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85em;
+    background: var(--darkened-bg, #f5f5f5);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--link-fg, #417690);
+}
+
+.worker-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.worker-status-online {
+    background-color: var(--message-success-bg, #d4edda);
+    color: var(--message-success-fg, #155724);
+}
+
+.worker-status-offline {
+    background-color: var(--message-error-bg, #f8d7da);
+    color: var(--message-error-fg, #721c24);
+}
+
+/* Empty state styling */
+.empty-state-row {
+    background: transparent !important;
+}
+
+.empty-state-message {
+    padding: 40px 20px !important;
+    text-align: center;
+    border: none !important;
+}
+
+.empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-state-icon {
+    font-size: 3em;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--body-fg, #333);
+}
+
+.empty-state-text {
+    margin: 0;
+    color: var(--body-quiet-color, #666);
+    font-size: 0.95em;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .workers-table {
+        background: var(--body-bg, #121212);
+    }
+
+    .workers-table thead {
+        background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+    }
+
+    .workers-table th {
+        color: var(--body-fg, #e0e0e0);
+        border-bottom-color: var(--border-color, #444);
+    }
+
+    .workers-table tbody tr {
+        border-bottom-color: var(--border-color, #333);
+    }
+
+    .workers-table tbody tr:hover {
+        background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+    }
+
+    .workers-table td {
+        color: var(--body-fg, #e0e0e0);
+    }
+
+    .worker-name {
+        background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+        color: var(--link-fg, #79aec8);
+    }
+
+    .worker-status-online {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #4caf50;
+    }
+
+    .worker-status-offline {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #ef5350;
+    }
+
+    .empty-state-title {
+        color: var(--body-fg, #e0e0e0);
+    }
+
+    .empty-state-text {
+        color: var(--body-quiet-color, #999);
+    }
 }
