@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "dj_celery_panel",
     "example_project",  # For management commands
+    "app",  # Example app with test tasks
 ]
 
 MIDDLEWARE = [
