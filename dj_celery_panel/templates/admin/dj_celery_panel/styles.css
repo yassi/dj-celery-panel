@@ -129,6 +129,63 @@
     }
 }
 
+/* ===== TAB NAVIGATION STYLES ===== */
+
+.celery-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border-color, #ddd);
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.celery-tab {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: var(--body-quiet-color, #666);
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.celery-tab:hover {
+    color: var(--link-fg, #417690);
+    background: var(--darkened-bg, rgba(0, 0, 0, 0.03));
+}
+
+.celery-tab-active {
+    color: var(--link-fg, #417690);
+    border-bottom-color: var(--link-fg, #417690);
+    font-weight: 600;
+}
+
+.celery-tab-content {
+    margin-top: 20px;
+}
+
+/* Dark mode support for tabs */
+@media (prefers-color-scheme: dark) {
+    .celery-tabs {
+        border-bottom-color: var(--border-color, #444);
+    }
+
+    .celery-tab {
+        color: var(--body-quiet-color, #999);
+    }
+
+    .celery-tab:hover {
+        color: var(--link-fg, #79aec8);
+        background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+    }
+
+    .celery-tab-active {
+        color: var(--link-fg, #79aec8);
+        border-bottom-color: var(--link-fg, #79aec8);
+    }
+}
+
 /* ===== INSTANCE OVERVIEW STYLES ===== */
 
 .instance-stats {
@@ -734,56 +791,6 @@
     transform: none;
 }
 
-/* ===== WORKERS AND CONFIG GRID LAYOUT ===== */
-
-.workers-config-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.workers-section {
-    min-width: 0; /* Prevents grid blowout */
-}
-
-.config-section {
-    min-width: 0; /* Prevents grid blowout */
-}
-
-.config-section .abilities-legend {
-    margin-top: 0;
-    height: 100%;
-}
-
-.config-section .abilities-legend-title {
-    font-size: 1.1em;
-}
-
-.config-section .config-section-title {
-    font-size: 0.9em;
-    margin-top: 12px;
-}
-
-.config-section .abilities-legend-list {
-    font-size: 0.9em;
-}
-
-.config-section .abilities-legend-list li {
-    margin-bottom: 4px;
-}
-
-/* Responsive layout - stack on smaller screens */
-@media (max-width: 1024px) {
-    .workers-config-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .config-section .abilities-legend {
-        margin-top: 20px;
-    }
-}
-
 /* ===== WORKERS TABLE STYLES ===== */
 
 .workers-table {
@@ -792,9 +799,6 @@
     margin-top: 10px;
     background: var(--body-bg, #fff);
     table-layout: auto;
-}
-
-.workers-section .module {
     overflow-x: auto;
 }
 

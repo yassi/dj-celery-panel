@@ -1,0 +1,22 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="celery-tab-content">
+        <div class="module">
+            <h2>{% trans 'Task Queues' %}</h2>
+            <div class="empty-state-row">
+                <div class="empty-state-message">
+                    <div class="empty-state-content">
+                        <span class="empty-state-icon">📬</span>
+                        <p class="empty-state-title">{% trans 'Queues View' %}</p>
+                        <p class="empty-state-text">{% trans 'This section will display queue information and routing configuration.' %}</p>
+                        <p class="empty-state-text config-value-muted">{% trans 'Coming soon...' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

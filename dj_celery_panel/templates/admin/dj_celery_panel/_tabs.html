@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<div class="module">
+    <h2>{% trans 'Celery Status' %}</h2>
+    
+    <nav class="celery-tabs">
+        <a href="{% url 'dj_celery_panel:index' %}" class="celery-tab {% if current_tab == 'workers' %}celery-tab-active{% endif %}">
+            {% trans 'Active Workers' %}
+        </a>
+        <a href="{% url 'dj_celery_panel:tasks' %}" class="celery-tab {% if current_tab == 'tasks' %}celery-tab-active{% endif %}">
+            {% trans 'Tasks' %}
+        </a>
+        <a href="{% url 'dj_celery_panel:periodic_tasks' %}" class="celery-tab {% if current_tab == 'periodic_tasks' %}celery-tab-active{% endif %}">
+            {% trans 'Periodic Tasks' %}
+        </a>
+        <a href="{% url 'dj_celery_panel:queues' %}" class="celery-tab {% if current_tab == 'queues' %}celery-tab-active{% endif %}">
+            {% trans 'Queues' %}
+        </a>
+        <a href="{% url 'dj_celery_panel:configuration' %}" class="celery-tab {% if current_tab == 'configuration' %}celery-tab-active{% endif %}">
+            {% trans 'Configuration' %}
+        </a>
+    </nav>
+</div>

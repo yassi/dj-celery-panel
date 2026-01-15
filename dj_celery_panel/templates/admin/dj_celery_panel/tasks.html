@@ -1,0 +1,22 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="celery-tab-content">
+        <div class="module">
+            <h2>{% trans 'Registered Tasks' %}</h2>
+            <div class="empty-state-row">
+                <div class="empty-state-message">
+                    <div class="empty-state-content">
+                        <span class="empty-state-icon">📋</span>
+                        <p class="empty-state-title">{% trans 'Tasks View' %}</p>
+                        <p class="empty-state-text">{% trans 'This section will display all registered Celery tasks.' %}</p>
+                        <p class="empty-state-text config-value-muted">{% trans 'Coming soon...' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
