@@ -21,4 +21,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/dj-celery-panel/", include("dj_celery_panel.urls")),
     path("admin/", admin.site.urls),
+    path("tasks/", include("app.urls")),
 ]
