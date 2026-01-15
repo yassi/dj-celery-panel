@@ -59,4 +59,4 @@ services:
     <<: *dev
     ports:
       - "5555:5555"
-    command: celery flower -A example_project --broker=redis://redis:6379/0
+    command: celery -A example_project flower --broker=redis://redis:6379/0
