@@ -671,6 +671,15 @@
     opacity: 0.8;
 }
 
+.config-help-text {
+    font-size: 0.85em;
+    color: var(--body-quiet-color, #666);
+    margin-top: 4px;
+    margin-left: 0;
+    line-height: 1.4;
+    font-style: italic;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
     .ability-supported {
@@ -704,6 +713,10 @@
 
     .config-value-warning {
         color: #cc2936;
+    }
+
+    .config-help-text {
+        color: var(--body-quiet-color, #999);
     }
 }
 

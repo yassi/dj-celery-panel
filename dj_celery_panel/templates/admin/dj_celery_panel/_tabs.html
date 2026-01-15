@@ -1,7 +1,6 @@
 {% load i18n %}
 
 <div class="module">
-    <h2>{% trans 'Celery Status' %}</h2>
     
     <nav class="celery-tabs">
         <a href="{% url 'dj_celery_panel:index' %}" class="celery-tab {% if current_tab == 'workers' %}celery-tab-active{% endif %}">

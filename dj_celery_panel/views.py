@@ -89,13 +89,13 @@ def configuration(request):
     Display Celery configuration.
     """
     inspector = CeleryInspector(current_app)
-    celery_status = inspector.get_status()
+    config = inspector.get_configuration_info()
 
     context = admin.site.each_context(request)
     context.update(
         {
             "title": "Django Celery Panel - Configuration",
-            "celery_status": celery_status,
+            "config": config,
             "current_tab": "configuration",
         }
     )

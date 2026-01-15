@@ -8,6 +8,7 @@ Parameters:
 - fallback: (optional) Text to show if value is empty/None (default: "Not configured")
 - code: (optional) Code/URL to display after the value
 - suffix: (optional) Suffix to append to the value (e.g., "s" for seconds)
+- help_text: (optional) Explanation text to show below the value
 {% endcomment %}
 <li>
     <strong>{{ label }}</strong> 
@@ -18,5 +19,8 @@ Parameters:
         {% endif %}
     {% else %}
         <span class="config-value-muted">{% if fallback %}{{ fallback }}{% else %}{% trans 'Not configured' %}{% endif %}</span>
+    {% endif %}
+    {% if help_text %}
+    <div class="config-help-text">{{ help_text }}</div>
     {% endif %}
 </li>

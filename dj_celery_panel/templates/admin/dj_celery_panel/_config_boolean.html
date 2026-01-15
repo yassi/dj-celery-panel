@@ -6,6 +6,7 @@ Parameters:
 - value: The boolean value to display
 - invert: (optional) If true, shows "enabled" as muted and "disabled" as positive (default: false)
 - warning: (optional) If true and enabled, shows warning styling (default: false)
+- help_text: (optional) Explanation text to show below the value
 {% endcomment %}
 <li>
     <strong>{{ label }}</strong> 
@@ -23,5 +24,8 @@ Parameters:
         {% else %}
             <span class="config-value-muted">✗ Disabled</span>
         {% endif %}
+    {% endif %}
+    {% if help_text %}
+    <div class="config-help-text">{{ help_text }}</div>
     {% endif %}
 </li>
