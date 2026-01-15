@@ -94,7 +94,7 @@ docs_push: docs
 # Docker targets
 docker_up:
 	@echo "Starting all Docker services..."
-	@docker compose up -d
+	@docker compose --profile "*" up -d
 	@echo "Waiting for containers to initialize..."
 	@sleep 3
 	@echo "✅ All services are running:"
