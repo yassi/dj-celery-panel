@@ -4,19 +4,134 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
+<div class="task-header">
+    <div class="task-info">
+        <span class="badge cursor-mode">Mode: {{ task_result_mode }}</span>
+    </div>
+</div>
 <div class="celery-tab-content">
-        <div class="module">
-            <h2>{% trans 'Registered Tasks' %}</h2>
-            <div class="empty-state-row">
-                <div class="empty-state-message">
-                    <div class="empty-state-content">
-                        <span class="empty-state-icon">📋</span>
-                        <p class="empty-state-title">{% trans 'Tasks View' %}</p>
-                        <p class="empty-state-text">{% trans 'This section will display all registered Celery tasks.' %}</p>
-                        <p class="empty-state-text config-value-muted">{% trans 'Coming soon...' %}</p>
+    <div class="module">
+        <h2>{% trans 'Task Execution History' %}</h2>
+        <br />
+        
+        <!-- Search Bar -->
+        <form method="get" class="search-form">
+            <div class="form-row search-form-row">
+                <div class="search-form-fields">
+                    <div class="search-field-group">
+                        <input 
+                        type="text" 
+                        name="search" 
+                        value="{{ search_query }}" 
+                        placeholder="{% trans 'Search tasks by name...' %}"
+                        id="searchbar"
+                        style="width: 300px;"
+                        >
+                    </div>
+                    <div class="search-field-group">
+                        <input type="submit" value="{% trans 'Search' %}">
                     </div>
                 </div>
             </div>
+        </form>
+        
+        <!-- Tasks Table -->
+        {% if tasks %}
+        <p class="help">{% trans 'Showing' %} {{ tasks|length }} {% trans 'of' %} {{ total_count }} {% trans 'total tasks' %}</p>
+        <div class="results">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans 'Task Name' %}</th>
+                        <th scope="col">{% trans 'Task ID' %}</th>
+                        <th scope="col">{% trans 'Worker' %}</th>
+                        <th scope="col">{% trans 'Status' %}</th>
+                        <th scope="col">{% trans 'Created' %}</th>
+                        <th scope="col">{% trans 'Result' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>
+                            {% if task.name %}
+                                <code class="task-name">{{ task.name }}</code>
+                            {% else %}
+                                <span class="config-value-muted">{% trans 'Unknown' %}</span>
+                            {% endif %}
+                        </td>
+                        <td><code class="task-id-full">{{ task.id }}</code></td>
+                        <td>
+                            {% if task.worker %}
+                                {{ task.worker }}
+                            {% else %}
+                                <span class="config-value-muted">{% trans 'Unknown' %}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.status == "SUCCESS" %}
+                                <span class="task-status task-status-success">{% trans 'SUCCESS' %}</span>
+                            {% elif task.status == "FAILURE" %}
+                                <span class="task-status task-status-failure">{% trans 'FAILURE' %}</span>
+                            {% elif task.status == "STARTED" %}
+                                <span class="task-status task-status-active">{% trans 'STARTED' %}</span>
+                            {% elif task.status == "PENDING" %}
+                                <span class="task-status task-status-reserved">{% trans 'PENDING' %}</span>
+                            {% elif task.status == "RETRY" %}
+                                <span class="task-status task-status-retry">{% trans 'RETRY' %}</span>
+                            {% elif task.status == "REVOKED" %}
+                                <span class="task-status task-status-revoked">{% trans 'REVOKED' %}</span>
+                            {% else %}
+                                <span class="task-status">{{ task.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ task.date_created|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            {% if task.result %}
+                                <span>{{ task.result|slice:":100" }}{% if task.result|length > 100 %}...{% endif %}</span>
+                            {% else %}
+                                <span class="config-value-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <p class="paginator">
+            {{ tasks|length }} {% trans 'of' %} {{ total_count }} {% trans 'tasks' %}
+            {% if has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">{% trans 'First' %}</a>
+                <a href="?page={{ previous_page }}{% if search_query %}&search={{ search_query }}{% endif %}" class="prev">{% trans 'Previous' %}</a>
+            {% endif %}
+            <span class="this-page">{{ page }} {% trans 'of' %} {{ total_pages }}</span>
+            {% if has_next %}
+                <a href="?page={{ next_page }}{% if search_query %}&search={{ search_query }}{% endif %}" class="next">{% trans 'Next' %}</a>
+                <a href="?page={{ total_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">{% trans 'Last' %}</a>
+            {% endif %}
+        </p>
+        {% endif %}
+        
+        {% else %}
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">📋</span>
+                    {% if search_query %}
+                        <p class="empty-state-title">{% trans 'No Tasks Found' %}</p>
+                        <p class="empty-state-text">{% trans 'No tasks match your search query.' %}</p>
+                        <a href="{% url 'dj_celery_panel:tasks' %}" class="empty-state-link">{% trans 'Clear search' %}</a>
+                    {% else %}
+                        <p class="empty-state-title">{% trans 'No Tasks' %}</p>
+                        <p class="empty-state-text">{% trans 'No tasks have been executed yet.' %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
+</div>
 {% endblock %}
