@@ -21,3 +21,7 @@ build==1.3.0
 
 #documentation dependencies
 mkdocs-material==9.1.12
+
+# extra dj-panel tools
+dj-redis-panel
+dj-cache-panel

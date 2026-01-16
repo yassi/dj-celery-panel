@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_results",
+    "dj_redis_panel",
+    "dj_cache_panel",
     "dj_celery_panel",
     "example_project",  # For management commands
     "app",  # Example app with test tasks
@@ -134,12 +137,108 @@ USE_I18N = True
 
 USE_TZ = True
 
+DJ_REDIS_PANEL_SETTINGS = {
+    "ALLOW_KEY_DELETE": False,
+    "ALLOW_KEY_EDIT": False,
+    "ALLOW_TTL_UPDATE": False,
+    "CURSOR_PAGINATED_SCAN": False,
+    "CURSOR_PAGINATED_COLLECTIONS": False,
+    "socket_timeout": 5.0,
+    "socket_connect_timeout": 5.0,
+    "INSTANCES": {
+        "local_redis": {
+            "description": "Local Redis Instance",
+            "host": "redis",
+            "port": 6379,
+            "features": {
+                "ALLOW_KEY_DELETE": True,
+                "ALLOW_KEY_EDIT": True,
+                "ALLOW_TTL_UPDATE": True,
+                "CURSOR_PAGINATED_SCAN": True,
+                "CURSOR_PAGINATED_COLLECTIONS": True,
+            },
+        },
+    },
+}
 
+
+#########################
+# Celery Configuration #
+#########################
 # Celery Configuration (using modern Celery 4.x+ naming)
 CELERY_BROKER_URL = "redis://redis:6379/0"
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 3600,
+}
+
+# Store task results in Django database
+CELERY_RESULT_BACKEND = "django-db"
+
+# Optional: Track task started state
+CELERY_TASK_TRACK_STARTED = True
+
+# Store extended task result metadata (task name, args, kwargs, worker)
+CELERY_RESULT_EXTENDED = True
+
+# Timezone for beat schedule
+CELERY_TIMEZONE = "UTC"
+
+# Celery Beat Schedule - Periodic Tasks
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    # Run every 30 seconds (good for testing)
+    "send-notification-every-30-seconds": {
+        "task": "app.tasks.send_periodic_notification",
+        "schedule": 30.0,
+    },
+    # Run every 5 minutes
+    "health-check-every-5-minutes": {
+        "task": "app.tasks.health_check",
+        "schedule": 300.0,  # 5 minutes in seconds
+    },
+    # Run every hour at minute 0
+    "generate-report-hourly": {
+        "task": "app.tasks.generate_hourly_report",
+        "schedule": crontab(minute=0),  # Every hour at :00
+    },
+    # Run daily at midnight
+    "cleanup-old-results-daily": {
+        "task": "app.tasks.cleanup_old_results",
+        "schedule": crontab(hour=0, minute=0),  # Daily at 00:00
+    },
+}
+
+CELERY_QUEUES = {
+    "default": {
+        "exchange": "default",
+        "exchange_type": "direct",
+        "routing_key": "default",
+    },
+    "email": {
+        "exchange": "email",
+        "exchange_type": "direct",
+        "routing_key": "email",
+    },
+    "heavy": {
+        "exchange": "heavy",
+        "exchange_type": "direct",
+        "routing_key": "heavy",
+    },
+    "periodic": {
+        "exchange": "periodic",
+        "exchange_type": "direct",
+        "routing_key": "periodic",
+    },
+}
+
+#########################
+# DJ Celery Panel Configuration
+#########################
+
+DJ_CELERY_PANEL_SETTINGS = {
+    "task_result_mode": "django-celery-results",  # inspect, django-celery-results, or monitor modes
 }
 
 

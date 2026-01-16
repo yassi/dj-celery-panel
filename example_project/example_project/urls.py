@@ -20,6 +20,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/dj-celery-panel/", include("dj_celery_panel.urls")),
+    path("admin/dj-redis-panel/", include("dj_redis_panel.urls")),
+    path("admin/dj-cache-panel/", include("dj_cache_panel.urls")),
     path("admin/", admin.site.urls),
     path("tasks/", include("app.urls")),
 ]
