@@ -1,0 +1,140 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="celery-tab-content">
+    {% if task %}
+    <div class="module">
+        <h2>{% trans 'Task Details' %}</h2>
+        
+        <div class="results">
+            <table id="result_list">
+            <tr>
+                <th>{% trans 'Task ID' %}</th>
+                <td><code>{{ task.id }}</code></td>
+            </tr>
+            <tr>
+                <th>{% trans 'Task Name' %}</th>
+                <td>
+                    {% if task.name %}
+                        <code>{{ task.name }}</code>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'Unknown' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Status' %}</th>
+                <td>
+                    {% if task.status == "SUCCESS" %}
+                        <span class="task-status task-status-success">{% trans 'SUCCESS' %}</span>
+                    {% elif task.status == "FAILURE" %}
+                        <span class="task-status task-status-failure">{% trans 'FAILURE' %}</span>
+                    {% elif task.status == "STARTED" %}
+                        <span class="task-status task-status-active">{% trans 'STARTED' %}</span>
+                    {% elif task.status == "PENDING" %}
+                        <span class="task-status task-status-reserved">{% trans 'PENDING' %}</span>
+                    {% elif task.status == "RETRY" %}
+                        <span class="task-status task-status-retry">{% trans 'RETRY' %}</span>
+                    {% elif task.status == "REVOKED" %}
+                        <span class="task-status task-status-revoked">{% trans 'REVOKED' %}</span>
+                    {% else %}
+                        <span class="task-status">{{ task.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Worker' %}</th>
+                <td>
+                    {% if task.worker %}
+                        {{ task.worker }}
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'Unknown' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Created' %}</th>
+                <td>{{ task.date_created|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            {% if task.date_started %}
+            <tr>
+                <th>{% trans 'Started' %}</th>
+                <td>{{ task.date_started|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            {% endif %}
+            {% if task.date_done %}
+            <tr>
+                <th>{% trans 'Completed' %}</th>
+                <td>{{ task.date_done|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            {% endif %}
+            {% if task.duration %}
+            <tr>
+                <th>{% trans 'Duration' %}</th>
+                <td>{{ task.duration|floatformat:3 }} {% trans 'seconds' %}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th>{% trans 'Args' %}</th>
+                <td>
+                    {% if task.args %}
+                        <pre><code>{{ task.args }}</code></pre>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No arguments' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Kwargs' %}</th>
+                <td>
+                    {% if task.kwargs %}
+                        <pre><code>{{ task.kwargs }}</code></pre>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No keyword arguments' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Result' %}</th>
+                <td>
+                    {% if task.result %}
+                        <pre><code>{{ task.result }}</code></pre>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No result' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if task.traceback %}
+            <tr>
+                <th>{% trans 'Traceback' %}</th>
+                <td>
+                    <pre class="task-traceback"><code>{{ task.traceback }}</code></pre>
+                </td>
+            </tr>
+            {% endif %}
+            </table>
+        </div>
+
+        <div class="task-detail-actions">
+            <a href="{% url 'dj_celery_panel:tasks' %}" class="button default">{% trans 'Back to Tasks' %}</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="module">
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">⚠️</span>
+                    <p class="empty-state-title">{% trans 'Task Not Found' %}</p>
+                    <p class="empty-state-text">{% trans 'The requested task could not be found.' %}</p>
+                    <a href="{% url 'dj_celery_panel:tasks' %}" class="button">{% trans 'Back to Tasks' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

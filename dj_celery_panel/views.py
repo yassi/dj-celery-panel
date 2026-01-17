@@ -5,7 +5,11 @@ from celery import current_app
 
 from django.conf import settings
 
-from .celery_utils import CeleryInspector, CeleryTaskListInterface
+from .celery_utils import (
+    CeleryInspector,
+    CeleryTaskListInterface,
+    CeleryTaskInstanceDetailInterface,
+)
 
 
 @staff_member_required
@@ -146,6 +150,37 @@ def queues(request):
         }
     )
     return render(request, "admin/dj_celery_panel/queues.html", context)
+
+
+@staff_member_required
+def task_detail(request, task_id):
+    """
+    Display detailed information about a specific task instance.
+    """
+    # Get configuration
+    panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
+    task_result_mode = panel_settings.get("task_result_mode", "django-celery-results")
+
+    # Get task details using the interface
+    detail_interface = CeleryTaskInstanceDetailInterface(
+        current_app, mode=task_result_mode
+    )
+    result = detail_interface.get_task_detail(task_id)
+
+    # Handle errors
+    if result.get("error"):
+        messages.error(request, f"Error retrieving task: {result['error']}")
+
+    context = admin.site.each_context(request)
+    context.update(
+        {
+            "title": f"Django Celery Panel - Task {task_id[:8]}...",
+            "current_tab": "tasks",
+            "task": result.get("task"),
+            "task_result_mode": task_result_mode,
+        }
+    )
+    return render(request, "admin/dj_celery_panel/task_detail.html", context)
 
 
 @staff_member_required

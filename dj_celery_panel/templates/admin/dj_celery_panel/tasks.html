@@ -53,7 +53,11 @@
                 <tbody>
                     {% for task in tasks %}
                     <tr>
-                        <td><code class="task-name">{{ task.id }}</code></td>
+                        <td>
+                            <a href="{% url 'dj_celery_panel:task_detail' task.id %}">
+                                <code class="task-name">{{ task.id }}</code>
+                            </a>
+                        </td>
                         <td>
                             {% if task.name %}
                                 <code>{{ task.name }}</code>

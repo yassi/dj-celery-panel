@@ -952,6 +952,14 @@
 
 /* ===== TASK ELEMENT STYLES ===== */
 
+.task-name {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85em;
+    background: var(--darkened-bg, #f5f5f5);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--link-fg, #417690);
+}
 
 .task-id {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1250,5 +1258,63 @@
 
     .empty-state-text {
         color: var(--body-quiet-color, #999);
+    }
+}
+
+/* ===== TASK DETAIL PAGE STYLES ===== */
+
+/* Custom width for detail table headers */
+#result_list th {
+    width: 200px;
+}
+
+/* Styles for code blocks in detail view */
+#result_list pre {
+    margin: 0;
+    padding: 10px;
+    background: var(--darkened-bg, #f5f5f5);
+    border-radius: 4px;
+    overflow-x: auto;
+    max-height: 400px;
+}
+
+#result_list pre code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    color: var(--body-fg, #333);
+}
+
+.task-traceback {
+    color: var(--message-error-fg, #721c24);
+    background: var(--message-error-bg, #f8d7da);
+    border: 1px solid #f5c6cb;
+}
+
+.task-detail-actions {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color, #ddd);
+    display: flex;
+    gap: 10px;
+}
+
+/* Dark mode support for task detail page */
+@media (prefers-color-scheme: dark) {
+    #result_list pre {
+        background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+    }
+
+    #result_list pre code {
+        color: var(--body-fg, #e0e0e0);
+    }
+
+    .task-traceback {
+        color: #ef5350;
+        background: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .task-detail-actions {
+        border-top-color: var(--border-color, #444);
     }
 }
