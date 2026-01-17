@@ -246,13 +246,83 @@ class CeleryInspector:
 
         return status
 
-    def get_tasks(self):
-        return self.app.tasks.keys()
+    def get_registered_tasks(self, exclude_internal=True):
+        """
+        Get all registered tasks in the Celery app.
 
-    def get_workers(self):
-        pass
+        Args:
+            exclude_internal: bool - If True, filters out celery.* internal tasks
+
+        Returns:
+            list: List of task names
+        """
+        tasks = list(self.app.tasks.keys())
+        if exclude_internal:
+            tasks = [t for t in tasks if not t.startswith("celery.")]
+        return tasks
+
+    def get_periodic_tasks(self):
+        """
+        Get periodic tasks from the beat schedule.
+
+        Returns:
+            list: List of dicts containing periodic task information
+        """
+        periodic_tasks = []
+        if hasattr(self.app.conf, "beat_schedule"):
+            beat_schedule = self.app.conf.beat_schedule or {}
+            for task_name, task_config in beat_schedule.items():
+                periodic_tasks.append(
+                    {
+                        "name": task_name,
+                        "task": task_config.get("task", "N/A"),
+                        "schedule": str(task_config.get("schedule", "N/A")),
+                        "args": task_config.get("args", []),
+                        "kwargs": task_config.get("kwargs", {}),
+                    }
+                )
+        return periodic_tasks
 
     def get_queues(self):
+        """
+        Get active task queues from all workers.
+
+        Returns:
+            dict: Dictionary with 'queues' list and optional 'error' message
+        """
+        result = {"queues": [], "error": None}
+
+        try:
+            inspect_obj = self.app.control.inspect()
+            active_queues = inspect_obj.active_queues()
+
+            if active_queues:
+                # Collect unique queues across all workers
+                queue_info = {}
+
+                for worker, worker_queues in active_queues.items():
+                    for queue in worker_queues:
+                        queue_name = queue.get("name", "Unknown")
+
+                        if queue_name not in queue_info:
+                            queue_info[queue_name] = {
+                                "name": queue_name,
+                                "exchange": queue.get("exchange", {}).get(
+                                    "name", "N/A"
+                                ),
+                                "routing_key": queue.get("routing_key", "N/A"),
+                                "workers": [],
+                            }
+
+                        queue_info[queue_name]["workers"].append(worker)
+
+                result["queues"] = list(queue_info.values())
+        except Exception as e:
+            result["error"] = str(e)
+
+        return result
+
+    def get_workers(self):
         pass
 
     def get_scheduled_tasks(self):
