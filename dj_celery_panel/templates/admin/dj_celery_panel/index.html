@@ -4,45 +4,128 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="module">
-    <h2>{% trans 'Active Workers' %}</h2>
-    <table class="workers-table">
-        <thead>
-            <tr>
-                <th>{% trans 'Worker Name' %}</th>
-                <th>{% trans 'Status' %}</th>
-                <th>{% trans 'Pool' %}</th>
-                <th>{% trans 'Concurrency' %}</th>
-                <th>{% trans 'Prefetch Count' %}</th>
-                <th>{% trans 'Tasks Executed' %}</th>
-                <th>{% trans 'PID' %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if celery_status.workers_detail %}
-                {% for worker in celery_status.workers_detail %}
-                <tr>
-                    <td><code class="worker-name">{{ worker.name }}</code></td>
-                    <td><span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span></td>
-                    <td>{{ worker.pool }}</td>
-                    <td>{{ worker.concurrency }}</td>
-                    <td>{{ worker.prefetch_count }}</td>
-                    <td>{{ worker.total_tasks_executed }}</td>
-                    <td>{{ worker.pid }}</td>
-                </tr>
-                {% endfor %}
-            {% else %}
-                <tr class="empty-state-row">
-                    <td colspan="7" class="empty-state-message">
-                        <div class="empty-state-content">
-                            <span class="empty-state-icon">⚠️</span>
-                            <p class="empty-state-title">{% trans 'No Workers Running' %}</p>
-                            <p class="empty-state-text">{% trans 'Start a Celery worker to process tasks.' %}</p>
-                        </div>
-                    </td>
-                </tr>
-            {% endif %}
-        </tbody>
-    </table>
+<div class="celery-tab-content">
+    <!-- Overview Cards -->
+    <div class="overview-cards">
+        <div class="overview-card">
+            <div class="overview-card-icon">📋</div>
+            <div class="overview-card-content">
+                <div class="overview-card-label">{% trans 'Registered Tasks' %}</div>
+                <div class="overview-card-value">{{ registered_tasks_count }}</div>
+                <a href="{% url 'dj_celery_panel:tasks' %}" class="overview-card-link">{% trans 'View all tasks →' %}</a>
+            </div>
+        </div>
+        
+        <div class="overview-card">
+            <div class="overview-card-icon">⏰</div>
+            <div class="overview-card-content">
+                <div class="overview-card-label">{% trans 'Periodic Tasks' %}</div>
+                <div class="overview-card-value">{{ periodic_tasks_count }}</div>
+                <a href="#periodic-section" class="overview-card-link">{% trans 'View schedule →' %}</a>
+            </div>
+        </div>
+        
+        <div class="overview-card">
+            <div class="overview-card-icon">⚙️</div>
+            <div class="overview-card-content">
+                <div class="overview-card-label">{% trans 'Broker' %}</div>
+                <div class="overview-card-value-small">{{ config.broker_type|default:"Not configured" }}</div>
+                <a href="{% url 'dj_celery_panel:configuration' %}" class="overview-card-link">{% trans 'Configuration →' %}</a>
+            </div>
+        </div>
+        
+        <div class="overview-card">
+            <div class="overview-card-icon">💾</div>
+            <div class="overview-card-content">
+                <div class="overview-card-label">{% trans 'Result Backend' %}</div>
+                <div class="overview-card-value-small">{{ config.result_backend_type|default:"Not configured" }}</div>
+                <a href="{% url 'dj_celery_panel:configuration' %}" class="overview-card-link">{% trans 'Configuration →' %}</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registered Tasks Section -->
+    <div class="module">
+        <h2>{% trans 'Registered Tasks' %}</h2>
+        {% if registered_tasks %}
+        <div class="results">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans 'Task Name' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in registered_tasks %}
+                    <tr>
+                        <td><code class="task-name">{{ task }}</code></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">📋</span>
+                    <p class="empty-state-title">{% trans 'No Registered Tasks' %}</p>
+                    <p class="empty-state-text">{% trans 'No tasks have been registered in the Celery app.' %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Periodic Tasks Section -->
+    <div id="periodic-section" class="module">
+        <h2>{% trans 'Periodic Tasks Schedule' %}</h2>
+        {% if periodic_tasks %}
+        <div class="results">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans 'Name' %}</th>
+                        <th scope="col">{% trans 'Task' %}</th>
+                        <th scope="col">{% trans 'Schedule' %}</th>
+                        <th scope="col">{% trans 'Arguments' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in periodic_tasks %}
+                    <tr>
+                        <td><strong>{{ task.name }}</strong></td>
+                        <td><code class="task-name">{{ task.task }}</code></td>
+                        <td>{{ task.schedule }}</td>
+                        <td>
+                            {% if task.args %}
+                                <code>args: {{ task.args }}</code><br>
+                            {% endif %}
+                            {% if task.kwargs %}
+                                <code>kwargs: {{ task.kwargs }}</code>
+                            {% endif %}
+                            {% if not task.args and not task.kwargs %}
+                                <span class="config-value-muted">{% trans 'No arguments' %}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">⏰</span>
+                    <p class="empty-state-title">{% trans 'No Periodic Tasks' %}</p>
+                    <p class="empty-state-text">{% trans 'No periodic tasks have been configured in the beat schedule.' %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+
 </div>
 {% endblock %}

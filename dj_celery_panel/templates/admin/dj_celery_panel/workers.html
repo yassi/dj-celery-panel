@@ -1,0 +1,50 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="module">
+    <h2>{% trans 'Active Workers' %}</h2>
+    <div class="results">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans 'Worker Name' %}</th>
+                    <th scope="col">{% trans 'Status' %}</th>
+                    <th scope="col">{% trans 'Pool' %}</th>
+                    <th scope="col">{% trans 'Concurrency' %}</th>
+                    <th scope="col">{% trans 'Prefetch Count' %}</th>
+                    <th scope="col">{% trans 'Tasks Executed' %}</th>
+                    <th scope="col">{% trans 'PID' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if celery_status.workers_detail %}
+                    {% for worker in celery_status.workers_detail %}
+                    <tr>
+                        <td><code class="worker-name">{{ worker.name }}</code></td>
+                        <td><span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span></td>
+                        <td>{{ worker.pool }}</td>
+                        <td>{{ worker.concurrency }}</td>
+                        <td>{{ worker.prefetch_count }}</td>
+                        <td>{{ worker.total_tasks_executed }}</td>
+                        <td>{{ worker.pid }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-state-row">
+                        <td colspan="7" class="empty-state-message">
+                            <div class="empty-state-content">
+                                <span class="empty-state-icon">⚠️</span>
+                                <p class="empty-state-title">{% trans 'No Workers Running' %}</p>
+                                <p class="empty-state-text">{% trans 'Start a Celery worker to process tasks.' %}</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

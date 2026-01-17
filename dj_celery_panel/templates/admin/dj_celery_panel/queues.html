@@ -5,18 +5,49 @@
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
 <div class="celery-tab-content">
-        <div class="module">
-            <h2>{% trans 'Task Queues' %}</h2>
-            <div class="empty-state-row">
-                <div class="empty-state-message">
-                    <div class="empty-state-content">
-                        <span class="empty-state-icon">📬</span>
-                        <p class="empty-state-title">{% trans 'Queues View' %}</p>
-                        <p class="empty-state-text">{% trans 'This section will display queue information and routing configuration.' %}</p>
-                        <p class="empty-state-text config-value-muted">{% trans 'Coming soon...' %}</p>
-                    </div>
+    <div class="module">
+        <h2>{% trans 'Active Task Queues' %}</h2>
+        
+        {% if queues %}
+        <div class="results">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans 'Queue Name' %}</th>
+                        <th scope="col">{% trans 'Exchange' %}</th>
+                        <th scope="col">{% trans 'Routing Key' %}</th>
+                        <th scope="col">{% trans 'Workers' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for queue in queues %}
+                    <tr>
+                        <td><code class="queue-name">{{ queue.name }}</code></td>
+                        <td>{{ queue.exchange }}</td>
+                        <td><code class="routing-key">{{ queue.routing_key }}</code></td>
+                        <td>
+                            <div class="worker-list">
+                                {% for worker in queue.workers %}
+                                    <span class="worker-badge">{{ worker }}</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">📬</span>
+                    <p class="empty-state-title">{% trans 'No Active Queues' %}</p>
+                    <p class="empty-state-text">{% trans 'No workers are currently running or no queues have been configured.' %}</p>
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
+</div>
 {% endblock %}
