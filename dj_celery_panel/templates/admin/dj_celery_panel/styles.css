@@ -952,14 +952,6 @@
 
 /* ===== TASK ELEMENT STYLES ===== */
 
-.task-name {
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.85em;
-    background: var(--darkened-bg, #f5f5f5);
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: var(--link-fg, #417690);
-}
 
 .task-id {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1056,6 +1048,10 @@
 
     .task-name {
         background: var(--darkened-bg, rgba(255, 255, 255, 0.05));
+        color: var(--link-fg, #79aec8);
+    }
+
+    a .task-name {
         color: var(--link-fg, #79aec8);
     }
 

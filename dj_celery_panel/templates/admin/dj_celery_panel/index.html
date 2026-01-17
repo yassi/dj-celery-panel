@@ -58,7 +58,11 @@
                 <tbody>
                     {% for task in registered_tasks %}
                     <tr>
-                        <td><code class="task-name">{{ task }}</code></td>
+                        <td>
+                            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task|urlencode }}">
+                                <code class="task-name">{{ task }}</code>
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -95,7 +99,11 @@
                     {% for task in periodic_tasks %}
                     <tr>
                         <td><strong>{{ task.name }}</strong></td>
-                        <td><code class="task-name">{{ task.task }}</code></td>
+                        <td>
+                            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task.task|urlencode }}">
+                                <code class="task-name">{{ task.task }}</code>
+                            </a>
+                        </td>
                         <td>{{ task.schedule }}</td>
                         <td>
                             {% if task.args %}
