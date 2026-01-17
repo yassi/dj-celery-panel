@@ -42,8 +42,8 @@
             <table id="result_list">
                 <thead>
                     <tr>
-                        <th scope="col">{% trans 'Task Name' %}</th>
                         <th scope="col">{% trans 'Task ID' %}</th>
+                        <th scope="col">{% trans 'Task Name' %}</th>
                         <th scope="col">{% trans 'Worker' %}</th>
                         <th scope="col">{% trans 'Status' %}</th>
                         <th scope="col">{% trans 'Created' %}</th>
@@ -53,14 +53,14 @@
                 <tbody>
                     {% for task in tasks %}
                     <tr>
+                        <td><code class="task-name">{{ task.id }}</code></td>
                         <td>
                             {% if task.name %}
-                                <code class="task-name">{{ task.name }}</code>
+                                <code>{{ task.name }}</code>
                             {% else %}
                                 <span class="config-value-muted">{% trans 'Unknown' %}</span>
                             {% endif %}
                         </td>
-                        <td><code class="task-id-full">{{ task.id }}</code></td>
                         <td>
                             {% if task.worker %}
                                 {{ task.worker }}
