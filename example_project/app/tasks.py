@@ -188,3 +188,101 @@ def retrying_task(self, fail_times=2):
         raise self.retry(countdown=3)
 
     return f"Retrying task succeeded after {attempt} retries"
+
+
+# ===== PERIODIC TASKS =====
+
+@shared_task
+def health_check():
+    """
+    Periodic health check task that runs every 5 minutes.
+    
+    Useful for testing:
+    - Periodic task execution
+    - System monitoring
+    - Regular task scheduling
+    
+    Returns:
+        dict: Health check status
+    """
+    from datetime import datetime
+    print(f"[Health Check] Running at {datetime.now()}")
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "message": "System is running normally"
+    }
+
+
+@shared_task
+def cleanup_old_results():
+    """
+    Periodic task to clean up old task results (runs daily).
+    
+    Deletes task results older than 7 days to prevent database bloat.
+    
+    Returns:
+        dict: Cleanup statistics
+    """
+    from django_celery_results.models import TaskResult
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    cutoff_date = timezone.now() - timedelta(days=7)
+    count_before = TaskResult.objects.count()
+    deleted = TaskResult.objects.filter(date_created__lt=cutoff_date).delete()
+    count_after = TaskResult.objects.count()
+    
+    result = {
+        "deleted_count": deleted[0] if deleted else 0,
+        "total_before": count_before,
+        "total_after": count_after,
+        "cutoff_date": cutoff_date.isoformat(),
+    }
+    
+    print(f"[Cleanup] Deleted {result['deleted_count']} old task results")
+    return result
+
+
+@shared_task
+def generate_hourly_report():
+    """
+    Periodic task to generate a report every hour.
+    
+    Useful for testing:
+    - Hourly scheduled tasks
+    - Report generation workflows
+    - Time-based automation
+    
+    Returns:
+        dict: Report information
+    """
+    from datetime import datetime
+    print(f"[Report] Generating hourly report at {datetime.now()}")
+    
+    # Simulate report generation
+    return {
+        "report_type": "hourly",
+        "generated_at": datetime.now().isoformat(),
+        "status": "completed",
+        "data_points": 42,
+    }
+
+
+@shared_task
+def send_periodic_notification():
+    """
+    Periodic task that runs every 30 seconds (for testing).
+    
+    Useful for testing:
+    - Frequent periodic tasks
+    - Quick feedback on schedule changes
+    - Beat scheduler health
+    
+    Returns:
+        str: Notification message
+    """
+    from datetime import datetime
+    message = f"Periodic notification sent at {datetime.now().strftime('%H:%M:%S')}"
+    print(f"[Notification] {message}")
+    return message
