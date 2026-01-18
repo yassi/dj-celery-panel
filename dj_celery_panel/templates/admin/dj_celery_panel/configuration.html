@@ -19,10 +19,10 @@
                         {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value="" fallback=_("CeleryTasksDjangoCeleryResultsBackend (default)") help_text=_("Backend class used for retrieving task lists and task details.") %}
                     {% endif %}
                     
-                    {% if panel_settings.worker_backend %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Worker Backend:") value=panel_settings.worker_backend help_text=_("Backend class used for retrieving worker information.") %}
+                    {% if panel_settings.workers_backend %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value=panel_settings.workers_backend help_text=_("Backend class used for retrieving worker information.") %}
                     {% else %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Worker Backend:") value="" fallback=_("CeleryWorkerListInspectBackend (default)") help_text=_("Backend class used for retrieving worker information.") %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value="" fallback=_("CeleryWorkersInspectBackend (default)") help_text=_("Backend class used for retrieving worker information.") %}
                     {% endif %}
                     
                     {% if panel_settings.queue_backend %}

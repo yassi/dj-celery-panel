@@ -23,7 +23,7 @@
                 {% if celery_status.workers_detail %}
                     {% for worker in celery_status.workers_detail %}
                     <tr>
-                        <td><code class="worker-name">{{ worker.name }}</code></td>
+                        <td><a href="{% url 'dj_celery_panel:worker_detail' worker.name %}"><code class="worker-name">{{ worker.name }}</code></a></td>
                         <td><span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span></td>
                         <td>{{ worker.pool }}</td>
                         <td>{{ worker.concurrency }}</td>

@@ -18,9 +18,10 @@ from .tasks import (
     TaskDetailPage,
     TaskListPage,
 )
-from .worker_list import (
-    CeleryWorkerListInterface,
-    CeleryWorkerListInspectBackend,
+from .workers import (
+    CeleryWorkersInspectBackend,
+    CeleryWorkersInterface,
+    WorkerDetailPage,
     WorkerListPage,
 )
 
@@ -34,10 +35,11 @@ __all__ = [
     "CeleryTasksDjangoCeleryResultsBackend",
     "TaskListPage",
     "TaskDetailPage",
-    # Worker List
-    "CeleryWorkerListInterface",
-    "CeleryWorkerListInspectBackend",
+    # Workers
+    "CeleryWorkersInterface",
+    "CeleryWorkersInspectBackend",
     "WorkerListPage",
+    "WorkerDetailPage",
     # Queue List
     "CeleryQueueListInterface",
     "CeleryQueueListInspectBackend",

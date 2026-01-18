@@ -7,7 +7,7 @@ from .celery_utils import (
     CeleryInspector,
     CeleryQueueListInterface,
     CeleryTasksInterface,
-    CeleryWorkerListInterface,
+    CeleryWorkersInterface,
 )
 
 
@@ -49,7 +49,7 @@ def workers(request):
     Display active Celery workers with real-time inspection data.
     """
     # Get workers using the interface
-    worker_interface = CeleryWorkerListInterface(current_app)
+    worker_interface = CeleryWorkersInterface(current_app)
     worker_result = worker_interface.get_workers()
 
     # Use Django's messaging framework for errors and notifications
@@ -180,6 +180,31 @@ def task_detail(request, task_id):
         }
     )
     return render(request, "admin/dj_celery_panel/task_detail.html", context)
+
+
+@staff_member_required
+def worker_detail(request, worker_id):
+    """
+    Display detailed information about a specific worker.
+    """
+    # Get worker details using the interface
+    worker_interface = CeleryWorkersInterface(current_app)
+    result = worker_interface.get_worker_detail(worker_id)
+
+    # Handle errors
+    if result.error:
+        messages.error(request, f"Error retrieving worker: {result.error}")
+
+    context = admin.site.each_context(request)
+    context.update(
+        {
+            "title": f"Django Celery Panel - Worker {worker_id}",
+            "current_tab": "workers",
+            "worker": result.worker,
+            "worker_id": worker_id,
+        }
+    )
+    return render(request, "admin/dj_celery_panel/worker_detail.html", context)
 
 
 @staff_member_required

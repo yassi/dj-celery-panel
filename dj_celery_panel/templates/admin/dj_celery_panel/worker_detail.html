@@ -1,0 +1,186 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="celery-tab-content">
+    {% if worker %}
+    <div class="module">
+        <h2>{% trans 'Worker Details' %}</h2>
+        
+        <div class="results">
+            <table id="result_list">
+            <tr>
+                <th>{% trans 'Worker Name' %}</th>
+                <td><code>{{ worker.name }}</code></td>
+            </tr>
+            <tr>
+                <th>{% trans 'Status' %}</th>
+                <td>
+                    <span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span>
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Hostname' %}</th>
+                <td>{{ worker.hostname }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Process ID (PID)' %}</th>
+                <td>{{ worker.pid }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Pool Implementation' %}</th>
+                <td>{{ worker.pool }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Concurrency' %}</th>
+                <td>{{ worker.concurrency }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Prefetch Count' %}</th>
+                <td>{{ worker.prefetch_count }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Total Tasks Executed' %}</th>
+                <td>{{ worker.total_tasks_executed }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Active Tasks' %}</th>
+                <td>
+                    {% if worker.active_tasks %}
+                        <strong>{{ worker.active_tasks_count }}</strong>
+                        <details style="margin-top: 8px;">
+                            <summary style="cursor: pointer;">{% trans 'Show active tasks' %}</summary>
+                            <pre style="margin-top: 8px;"><code>{{ worker.active_tasks_json }}</code></pre>
+                        </details>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No active tasks' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Reserved Tasks' %}</th>
+                <td>
+                    {% if worker.reserved_tasks %}
+                        <strong>{{ worker.reserved_tasks_count }}</strong>
+                        <details style="margin-top: 8px;">
+                            <summary style="cursor: pointer;">{% trans 'Show reserved tasks' %}</summary>
+                            <pre style="margin-top: 8px;"><code>{{ worker.reserved_tasks_json }}</code></pre>
+                        </details>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No reserved tasks' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Scheduled Tasks' %}</th>
+                <td>
+                    {% if worker.scheduled_tasks %}
+                        <strong>{{ worker.scheduled_tasks_count }}</strong>
+                        <details style="margin-top: 8px;">
+                            <summary style="cursor: pointer;">{% trans 'Show scheduled tasks' %}</summary>
+                            <pre style="margin-top: 8px;"><code>{{ worker.scheduled_tasks_json }}</code></pre>
+                        </details>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No scheduled tasks' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Registered Tasks' %}</th>
+                <td>
+                    {% if worker.registered_tasks %}
+                        <strong>{{ worker.registered_tasks|length }}</strong> {% trans 'tasks' %}
+                        <details style="margin-top: 8px;">
+                            <summary style="cursor: pointer;">{% trans 'Show registered tasks' %}</summary>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                {% for task in worker.registered_tasks %}
+                                    <li><code>{{ task }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No registered tasks' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Active Queues' %}</th>
+                <td>
+                    {% if worker.active_queues %}
+                        <ul style="margin-left: 20px;">
+                            {% for queue in worker.active_queues %}
+                                <li>
+                                    <strong>{{ queue.name }}</strong>
+                                    <span class="config-value-muted">
+                                        (Exchange: {{ queue.exchange.name }}, Routing Key: {{ queue.routing_key }})
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'No active queues' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if worker.processes %}
+            <tr>
+                <th>{% trans 'Worker Processes' %}</th>
+                <td>
+                    <details>
+                        <summary style="cursor: pointer;">{% trans 'Show process list' %} ({{ worker.processes|length }})</summary>
+                        <ul style="margin-top: 8px; margin-left: 20px;">
+                            {% for pid in worker.processes %}
+                                <li>PID: {{ pid }}</li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </td>
+            </tr>
+            {% endif %}
+            {% if worker.rusage_json %}
+            <tr>
+                <th>{% trans 'Resource Usage' %}</th>
+                <td>
+                    <details>
+                        <summary style="cursor: pointer;">{% trans 'Show resource usage' %}</summary>
+                        <pre style="margin-top: 8px;"><code>{{ worker.rusage_json }}</code></pre>
+                    </details>
+                </td>
+            </tr>
+            {% endif %}
+            {% if worker.broker_json %}
+            <tr>
+                <th>{% trans 'Broker Info' %}</th>
+                <td>
+                    <details>
+                        <summary style="cursor: pointer;">{% trans 'Show broker information' %}</summary>
+                        <pre style="margin-top: 8px;"><code>{{ worker.broker_json }}</code></pre>
+                    </details>
+                </td>
+            </tr>
+            {% endif %}
+            </table>
+        </div>
+
+        <div class="task-detail-actions">
+            <a href="{% url 'dj_celery_panel:workers' %}" class="button default">{% trans 'Back to Workers' %}</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="module">
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">⚠️</span>
+                    <p class="empty-state-title">{% trans 'Worker Not Found' %}</p>
+                    <p class="empty-state-text">{% trans 'The requested worker could not be found.' %}</p>
+                    <a href="{% url 'dj_celery_panel:workers' %}" class="button">{% trans 'Back to Workers' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
