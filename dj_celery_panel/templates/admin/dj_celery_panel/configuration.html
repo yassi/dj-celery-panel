@@ -5,9 +5,39 @@
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
 <div class="celery-tab-content">
+        <!-- DJ Celery Panel Settings -->
+        <div class="module">
+            <h2>{% trans 'DJ Celery Panel Settings' %}</h2>
+            
+            <div class="abilities-legend">
+                <h3 class="abilities-legend-title">{% trans 'Backend Configuration' %}</h3>
+                
+                <ul class="abilities-legend-list">
+                    {% if panel_settings.tasks_backend %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value=panel_settings.tasks_backend help_text=_("Backend class used for retrieving task lists and task details.") %}
+                    {% else %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value="" fallback=_("CeleryTasksDjangoCeleryResultsBackend (default)") help_text=_("Backend class used for retrieving task lists and task details.") %}
+                    {% endif %}
+                    
+                    {% if panel_settings.worker_backend %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Worker Backend:") value=panel_settings.worker_backend help_text=_("Backend class used for retrieving worker information.") %}
+                    {% else %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Worker Backend:") value="" fallback=_("CeleryWorkerListInspectBackend (default)") help_text=_("Backend class used for retrieving worker information.") %}
+                    {% endif %}
+                    
+                    {% if panel_settings.queue_backend %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queue Backend:") value=panel_settings.queue_backend help_text=_("Backend class used for retrieving queue information.") %}
+                    {% else %}
+                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queue Backend:") value="" fallback=_("CeleryQueueListInspectBackend (default)") help_text=_("Backend class used for retrieving queue information.") %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Celery Settings -->
         {% if config %}
         <div class="module">
-            <h2>{% trans 'Celery Configuration' %}</h2>
+            <h2>{% trans 'Celery Settings' %}</h2>
             
             <div class="abilities-legend">
                 <h3 class="abilities-legend-title">{% trans 'Configuration Information' %}</h3>

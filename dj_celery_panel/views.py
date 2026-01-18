@@ -185,16 +185,22 @@ def task_detail(request, task_id):
 @staff_member_required
 def configuration(request):
     """
-    Display Celery configuration.
+    Display Celery configuration and DJ Celery Panel settings.
     """
+    from django.conf import settings
+
     inspector = CeleryInspector(current_app)
     config = inspector.get_configuration_info()
+
+    # Get DJ Celery Panel settings
+    panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
 
     context = admin.site.each_context(request)
     context.update(
         {
             "title": "Django Celery Panel - Configuration",
             "config": config,
+            "panel_settings": panel_settings,
             "current_tab": "configuration",
         }
     )
