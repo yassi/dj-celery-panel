@@ -12,7 +12,6 @@
             <div class="overview-card-content">
                 <div class="overview-card-label">{% trans 'Registered Tasks' %}</div>
                 <div class="overview-card-value">{{ registered_tasks_count }}</div>
-                <a href="{% url 'dj_celery_panel:tasks' %}" class="overview-card-link">{% trans 'View all tasks →' %}</a>
             </div>
         </div>
         
@@ -21,7 +20,6 @@
             <div class="overview-card-content">
                 <div class="overview-card-label">{% trans 'Periodic Tasks' %}</div>
                 <div class="overview-card-value">{{ periodic_tasks_count }}</div>
-                <a href="#periodic-section" class="overview-card-link">{% trans 'View schedule →' %}</a>
             </div>
         </div>
         
