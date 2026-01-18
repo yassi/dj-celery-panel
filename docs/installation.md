@@ -1,5 +1,12 @@
 # Installation
 
+## Prerequisites
+
+- Django 4.2+
+- Celery 5.0+
+- A running Celery broker (Redis, RabbitMQ, etc.)
+- At least one Celery worker (for monitoring functionality)
+
 ## 1. Install the Package
 
 ```bash
@@ -37,13 +44,31 @@ urlpatterns = [
 ]
 ```
 
-## 4. Run Migrations
+## 4. Configure Celery
+
+Ensure you have Celery properly configured in your Django settings:
+
+```python
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Your broker URL
+CELERY_RESULT_BACKEND = 'django-db'  # or your preferred backend
+```
+
+## 5. Run Migrations
 
 ```bash
 python manage.py migrate
 ```
 
-## 5. Access the Panel
+## 6. Start Celery Worker
+
+The panel requires at least one running Celery worker to display worker and queue information:
+
+```bash
+celery -A your_project worker --loglevel=info
+```
+
+## 7. Access the Panel
 
 1. Start your Django development server:
    ```bash
@@ -54,6 +79,6 @@ python manage.py migrate
 
 3. Look for the "DJ_CELERY_PANEL" section
 
-4. Click to access the Celery Panel
+4. Click to access workers, tasks, queues, and periodic tasks
 
 That's it!

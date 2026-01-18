@@ -58,13 +58,38 @@ Visit: `http://127.0.0.1:8000/admin/`
 
 ## Testing
 
+The test suite requires a running instance of Celery with at least one worker, as well as Redis and PostgreSQL services. The tests verify the monitoring functionality against real Celery workers.
+
+### Prerequisites for Tests
+
+1. **Redis** - Running on `localhost:6379`
+2. **PostgreSQL** - Running on `localhost:5432` (or use SQLite locally)
+3. **Celery Worker** - At least one worker connected to the broker
+
 ### Run All Tests
 
-```bash
-# Docker
-make test_docker
+#### Docker (Recommended)
 
-# Local
+```bash
+# Docker automatically starts all required services including workers
+make test_docker
+```
+
+#### Local Environment
+
+```bash
+# Terminal 1: Start Redis (if not already running)
+docker run -d -p 6379:6379 redis:7
+
+# Terminal 2: Start PostgreSQL (optional, or use SQLite)
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16
+
+# Terminal 3: Start Celery worker
+cd example_project
+python manage.py migrate
+celery -A example_project worker --loglevel=info
+
+# Terminal 4: Run tests
 make test_local
 ```
 
@@ -80,6 +105,15 @@ pytest tests/test_admin.py::TestAdminIntegration::test_celery_panel_appears_in_a
 ```bash
 pytest --cov=dj_celery_panel tests/
 ```
+
+### GitHub Actions
+
+The CI pipeline automatically:
+1. Starts Redis and PostgreSQL services
+2. Runs database migrations
+3. Starts a Celery worker in detached mode
+4. Executes the test suite
+5. Uploads coverage reports
 
 ## Project Structure
 

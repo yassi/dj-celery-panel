@@ -8,6 +8,18 @@ The only required configuration is adding the app to your `INSTALLED_APPS` and i
 
 See the [Installation](installation.md) guide for setup instructions.
 
+## Celery Configuration
+
+Django Celery Panel requires a properly configured Celery instance:
+
+```python
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'  # Recommended for task history
+CELERY_TASK_TRACK_STARTED = True     # Track when tasks start
+CELERY_RESULT_EXTENDED = True        # Store extended task metadata
+```
+
 ## URLs Configuration
 
 ```python
@@ -28,4 +40,36 @@ Django Celery Panel uses Django's built-in admin authentication:
 
 ## Advanced Configuration
 
-Advanced configuration options will be added in future releases.
+You can customize the backend classes used by Django Celery Panel:
+
+```python
+# settings.py
+DJ_CELERY_PANEL_SETTINGS = {
+    # Backend class for tasks interface
+    "tasks_backend": "dj_celery_panel.celery_utils.CeleryTasksDjangoCeleryResultsBackend",
+    
+    # Backend class for workers interface
+    "workers_backend": "dj_celery_panel.celery_utils.CeleryWorkersInspectBackend",
+    
+    # Backend class for queues interface
+    "queues_backend": "dj_celery_panel.celery_utils.CeleryQueuesInspectBackend",
+}
+```
+
+### Available Backend Classes
+
+#### Tasks Backends
+- `CeleryTasksDjangoCeleryResultsBackend` - Uses django-celery-results for task history (recommended)
+
+#### Workers Backends
+- `CeleryWorkersInspectBackend` - Uses Celery's inspect API for real-time worker information
+
+#### Queues Backends
+- `CeleryQueuesInspectBackend` - Uses Celery's inspect API for queue information
+
+### Requirements
+
+The panel requires:
+- **Running Celery workers** for worker and queue monitoring
+- **django-celery-results** installed and configured for task history
+- **Proper Celery broker** (Redis, RabbitMQ, etc.) configured and running

@@ -11,6 +11,7 @@
 
 Your Celery task inspector inside the Django admin
 
+![DJ Celery Panel](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/django-celery.png)
 
 ## Docs
 
@@ -18,8 +19,12 @@ Your Celery task inspector inside the Django admin
 
 ## Features
 
-- **TBD**: View all configured cache backends from your `CACHES` setting
-
+- **Workers Monitoring**: View active Celery workers, their status, pool type, and concurrency
+- **Task Management**: Browse and inspect Celery tasks with detailed information
+- **Queue Overview**: Monitor configured queues and their routing
+- **Periodic Tasks**: View scheduled periodic tasks and their schedules
+- **Real-time Inspection**: Live data from Celery's inspect API
+- **Django Admin Integration**: Seamlessly integrated into your existing Django admin interface
 
 ### Project Structure
 
@@ -45,6 +50,7 @@ dj-celery-panel/
 ## Screenshots
 
 ### Django Admin Integration
+
 Seamlessly integrated into your Django admin interface. A new section for dj-celery-panel
 will appear in the same places where your models appear.
 
@@ -52,18 +58,29 @@ will appear in the same places where your models appear.
 
 ![Admin Home](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/admin_home.png)
 
-### Caches Overview
-Get a list of all your caches as well as the allowed capabilities for each cache
+### Dashboard Overview
 
-![Instance Overview](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/instance_list.png)
+Get a quick overview of your Celery infrastructure including active workers, recent tasks, and queue status.
 
-### Key Search
+![Dashboard Overview](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/overview.png)
 
-![Key Search](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/key_search.png)
+### Workers Monitoring
 
-### Key Edits/Adds
+View all active Celery workers with detailed information about their status, pool type, concurrency, and processing capabilities.
 
-![Key Detail](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/key_detail.png)
+![Workers](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/workers.png)
+
+### Task Management
+
+Browse and inspect your Celery tasks with complete details including status, arguments, results, and execution time.
+
+![Tasks](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/tasks.png)
+
+### Configuration
+
+View your Celery configuration including broker settings, result backend, and other runtime parameters.
+
+![Configuration](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/config.png)
 
 
 ## Installation
@@ -91,60 +108,32 @@ INSTALLED_APPS = [
 ]
 ```
 
-### 3. Configure Cache Instances
+### 3. Configure Celery Settings
 
-Django cache panel will use the `CACHES` setting normally defined in django projects
+Django Celery Panel works with your existing Celery configuration. Ensure you have Celery properly configured:
 
 ```python
-CACHES = {
-    ...
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # or your broker URL
+CELERY_RESULT_BACKEND = 'django-db'  # or your preferred backend
+
+# Optional: Advanced configuration
+DJ_CELERY_PANEL_SETTINGS = {
+    # Backend classes for each interface
+    "tasks_backend": "dj_celery_panel.celery_utils.CeleryTasksDjangoCeleryResultsBackend",
+    "workers_backend": "dj_celery_panel.celery_utils.CeleryWorkersInspectBackend",
+    "queues_backend": "dj_celery_panel.celery_utils.CeleryQueuesInspectBackend",
 }
 ```
 
-Additionally, you can also define some extra settings for extending or changing behavior
-of the existing cache panels.
-
-Note: these are advanced settings; the vast majority of django projects will not need to
-define any of these
-
-```python
-DJ_CACHE_PANEL_SETTINGS = {
-    # Optional: completely replace the default backend-to-panel mapping
-    # "BACKEND_PANEL_MAP": {}
-    #
-    # Optional: extend or override specific backend-to-panel mappings
-    # Panel classes can be specified as:
-    #   - Simple class name (e.g., "RedisCachePanel") - for built-in panels
-    #   - Full module path (e.g., "myapp.panels.CustomCachePanel") - for custom panels
-    "BACKEND_PANEL_EXTENSIONS": {
-        # Example: Map a custom backend to a custom panel class
-        # "myapp.backends.CustomCache": "myapp.panels.CustomCachePanel",
-        # Example: Override a built-in backend mapping
-        # "django.core.cache.backends.redis.RedisCache": "myapp.panels.MyRedisCachePanel",
-    },
-    # Optional: per-cache settings overrides
-    # Typically used to lock down a cache instance to only certain abilities
-    "CACHES": {
-        "redis": {
-            "abilities": {  # Optional: override the abilities for this cache instance
-                # "query": True,
-                # "get_key": True,
-                # "delete_key": True,
-                # "edit_key": True,
-                # "add_key": True,
-                # "flush_cache": True,
-            },
-        }
-    },
-}
-```
+**Note:** The panel requires at least one Celery worker to be running to display worker and queue information.
 
 
 
 
 ### 4. Include URLs
 
-Add the Cache Panel URLs to your main `urls.py`:
+Add the Celery Panel URLs to your main `urls.py`:
 
 ```python
 from django.contrib import admin
@@ -163,7 +152,15 @@ python manage.py migrate
 python manage.py createsuperuser  # If you don't have an admin user
 ```
 
-### 6. Access the Panel
+### 6. Start Celery Worker
+
+Start at least one Celery worker for the panel to monitor:
+
+```bash
+celery -A your_project worker --loglevel=info
+```
+
+### 7. Access the Panel
 
 1. Start your Django development server:
    ```bash
@@ -172,9 +169,9 @@ python manage.py createsuperuser  # If you don't have an admin user
 
 2. Navigate to the Django admin at `http://127.0.0.1:8000/admin/`
 
-3. Look for the "DJ_CACHE_PANEL" section in the admin interface
+3. Look for the "DJ_CELERY_PANEL" section in the admin interface
 
-4. Click "Manage Cache keys and values" to start browsing your cache instances
+4. Click to browse workers, tasks, queues, and periodic tasks
 
 
 
@@ -191,12 +188,12 @@ If you want to contribute to this project or set it up for local development:
 ### Prerequisites
 
 - Python 3.9 or higher
-- Redis server running locally
+- Redis server (for Celery broker)
+- PostgreSQL (optional, can use SQLite)
 - Git
-- Autoconf
-- Docker
+- Docker (recommended)
 
-It is reccommended that you use docker since it will automate much of dev env setup
+Docker is recommended since it automates the setup of all required services including Redis, PostgreSQL, and Celery workers.
 
 ### 1. Clone the Repository
 
@@ -221,8 +218,8 @@ make install # this will also do the above in one single command
 ### 2b. Set up dev environment using docker
 
 ```bash
-make docker_up  # bring up all services (redis, memached) and dev environment container
-make docker_shell  # open up a shell in the docker conatiner
+make docker_up     # Bring up all services (Redis, PostgreSQL, Celery workers)
+make docker_shell  # Open a shell in the docker container
 ```
 
 ### 3. Set Up Example Project
@@ -235,35 +232,59 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 4. Populate Test Data (Optional)
-An optional CLI tool for populating cache keys automatically is included in the
-example django project in this code base.
+### 4. Start Celery Worker
+
+For development, start at least one Celery worker:
 
 ```bash
-python manage.py populate_redis
+cd example_project
+celery -A example_project worker --loglevel=info
 ```
 
-This command will populate your cache instance with sample data for testing.
-
-### 6. Run the Development Server
+### 5. Run the Development Server
 
 ```bash
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/admin/` to access the Django admin with Cache Panel.
+Visit `http://127.0.0.1:8000/admin/` to access the Django admin with Celery Panel.
 
-### 7. Running Tests
+### 6. Running Tests
 
-The project includes a comprehensive test suite. You can run them by using make or
-by invoking pytest directly:
+The test suite requires running services (Redis, PostgreSQL, and at least one Celery worker) to test the monitoring functionality.
+
+#### Using Docker (Recommended)
+
+Docker automatically starts all required services:
 
 ```bash
-# build and install all dev dependencies and run all tests inside of docker container
 make test_docker
-
-# Test without the docker on your host machine.
-# note that testing always requires a redis and memcached service to be up.
-# these are mostly easily brought up using docker
-make test_local
 ```
+
+#### Local Testing
+
+For local testing, ensure services are running:
+
+```bash
+# Terminal 1: Start Redis
+docker run -d -p 6379:6379 redis:7
+
+# Terminal 2: Start PostgreSQL (optional, can use SQLite)
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16
+
+# Terminal 3: Start Celery worker
+cd example_project
+python manage.py migrate
+celery -A example_project worker --loglevel=info
+
+# Terminal 4: Run tests
+pytest tests/ -v
+```
+
+#### GitHub Actions
+
+The CI pipeline automatically:
+- Starts Redis and PostgreSQL services
+- Runs database migrations
+- Starts a Celery worker in detached mode
+- Executes the full test suite with coverage reporting
