@@ -6,8 +6,7 @@ from celery import current_app
 from .celery_utils import (
     CeleryInspector,
     CeleryQueueListInterface,
-    CeleryTaskInstanceDetailInterface,
-    CeleryTaskListInterface,
+    CeleryTasksInterface,
     CeleryWorkerListInterface,
 )
 
@@ -103,7 +102,7 @@ def tasks(request):
     per_page = 50
 
     # Get tasks using the interface
-    task_interface = CeleryTaskListInterface(current_app)
+    task_interface = CeleryTasksInterface(current_app)
     task_data = task_interface.get_tasks(
         search_query=search_query if search_query else None,
         page=page,
@@ -165,8 +164,8 @@ def task_detail(request, task_id):
     Display detailed information about a specific task instance.
     """
     # Get task details using the interface
-    detail_interface = CeleryTaskInstanceDetailInterface(current_app)
-    result = detail_interface.get_task_detail(task_id)
+    task_interface = CeleryTasksInterface(current_app)
+    result = task_interface.get_task_detail(task_id)
 
     # Handle errors
     if result.error:

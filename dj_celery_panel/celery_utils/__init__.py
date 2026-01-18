@@ -12,14 +12,10 @@ from .queue_list import (
     CeleryQueueListInspectBackend,
     QueueListPage,
 )
-from .task_detail import (
-    CeleryTaskInstanceDetailInterface,
-    CeleryTaskDetailDjangoCeleryResultsBackend,
+from .tasks import (
+    CeleryTasksDjangoCeleryResultsBackend,
+    CeleryTasksInterface,
     TaskDetailPage,
-)
-from .task_list import (
-    CeleryTaskListInterface,
-    CeleryTaskListDjangoCeleryResultsBackend,
     TaskListPage,
 )
 from .worker_list import (
@@ -33,13 +29,10 @@ __all__ = [
     "CeleryAbstractInterface",
     # Inspector
     "CeleryInspector",
-    # Task List
-    "CeleryTaskListInterface",
-    "CeleryTaskListDjangoCeleryResultsBackend",
+    # Tasks
+    "CeleryTasksInterface",
+    "CeleryTasksDjangoCeleryResultsBackend",
     "TaskListPage",
-    # Task Detail
-    "CeleryTaskInstanceDetailInterface",
-    "CeleryTaskDetailDjangoCeleryResultsBackend",
     "TaskDetailPage",
     # Worker List
     "CeleryWorkerListInterface",

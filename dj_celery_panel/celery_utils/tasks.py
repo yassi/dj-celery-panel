@@ -6,6 +6,8 @@ from .base import CeleryAbstractInterface
 
 @dataclass(frozen=True)
 class TaskListPage:
+    """Return type for task list queries."""
+
     tasks: list[dict]
     total_count: int
     page: int
@@ -18,51 +20,57 @@ class TaskListPage:
     error: Optional[str] = None
 
 
-class CeleryTaskListInterface(CeleryAbstractInterface):
+@dataclass(frozen=True)
+class TaskDetailPage:
+    """Return type for single task detail queries."""
+
+    task: Optional[dict]
+    error: Optional[str] = None
+
+
+class CeleryTasksInterface(CeleryAbstractInterface):
     """
-    Utility class that powers the task list search engine.
+    Interface for retrieving task information (both lists and individual tasks).
     """
 
-    BACKEND_KEY = "task_backend"
+    BACKEND_KEY = "tasks_backend"
     DEFAULT_BACKEND = (
-        "dj_celery_panel.celery_utils.CeleryTaskListDjangoCeleryResultsBackend"
+        "dj_celery_panel.celery_utils.CeleryTasksDjangoCeleryResultsBackend"
     )
 
     def get_tasks(self, search_query=None, page=1, per_page=50) -> TaskListPage:
+        """Get a paginated list of tasks with optional search filtering."""
         return self.backend.get_tasks(
             search_query=search_query, page=page, per_page=per_page
         )
 
+    def get_task_detail(self, task_id: str) -> TaskDetailPage:
+        """Get detailed information about a single task."""
+        return self.backend.get_task_detail(task_id)
 
-class CeleryTaskListDjangoCeleryResultsBackend:
+
+class CeleryTasksDjangoCeleryResultsBackend:
     """
-    Utility class that powers the task list search engine.
+    Backend for retrieving task information from django-celery-results.
 
-    There are many ways to generate a task list
-    - using the celery inspect api for direct queries to workers (slow)
-    - querying a result backend directly (django-celery-results)
-    - using a more custom approach where we save worker events and then query them
-
-    This class provides a unified interface for all these approaches. The view layer
-    should not need to know about the underlying implementation details and should be
-    able to use the same interface for all three approaches.
+    This backend provides both list and detail views by querying the
+    django-celery-results database directly.
     """
 
     def __init__(self, app):
         """
-        Initialize the task list interface.
+        Initialize the tasks backend.
 
         Args:
             app: Celery application instance
-            mode: str - 'django-celery-results', 'inspect', or 'monitor'
         """
         self.app = app
 
     def get_tasks(self, search_query=None, page=1, per_page=50) -> TaskListPage:
         """Get tasks from django-celery-results database."""
         try:
-            from django_celery_results.models import TaskResult
             from django.core.paginator import Paginator
+            from django_celery_results.models import TaskResult
 
             # Base queryset
             queryset = TaskResult.objects.all()
@@ -130,3 +138,45 @@ class CeleryTaskListDjangoCeleryResultsBackend:
                 total_pages=0,
                 error=str(e),
             )
+
+    def get_task_detail(self, task_id: str) -> TaskDetailPage:
+        """Get task details from django-celery-results database."""
+        try:
+            from django_celery_results.models import TaskResult
+
+            task = TaskResult.objects.filter(task_id=task_id).first()
+
+            if not task:
+                return TaskDetailPage(task=None, error="Task not found")
+
+            # Format task details
+            task_detail = {
+                "id": task.task_id,
+                "name": task.task_name,
+                "status": task.status,
+                "result": task.result,
+                "date_created": task.date_created,
+                "date_done": task.date_done,
+                "date_started": getattr(task, "date_started", None),
+                "worker": task.worker,
+                "args": task.task_args,
+                "kwargs": task.task_kwargs,
+                "traceback": task.traceback if hasattr(task, "traceback") else None,
+                "meta": task.meta if hasattr(task, "meta") else None,
+            }
+
+            # Calculate duration if both dates are available
+            if task.date_done and task.date_created:
+                duration = task.date_done - task.date_created
+                task_detail["duration"] = duration.total_seconds()
+            else:
+                task_detail["duration"] = None
+
+            return TaskDetailPage(task=task_detail)
+
+        except ImportError:
+            return TaskDetailPage(
+                task=None, error="django-celery-results not installed"
+            )
+        except Exception as e:
+            return TaskDetailPage(task=None, error=str(e))
