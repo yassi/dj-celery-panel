@@ -1,4 +1,16 @@
-class CeleryTaskInstanceDetailInterface:
+from dataclasses import dataclass
+from typing import Optional
+
+from .base import CeleryAbstractInterface
+
+
+@dataclass(frozen=True)
+class TaskDetailPage:
+    task: Optional[dict]
+    error: Optional[str] = None
+
+
+class CeleryTaskInstanceDetailInterface(CeleryAbstractInterface):
     """
     Utility class that powers the task detail view.
 
@@ -6,30 +18,22 @@ class CeleryTaskInstanceDetailInterface:
     view and this class provides a unified interface for all these approaches.
     """
 
-    def __init__(self, app, mode="django-celery-results"):
+    BACKEND_KEY = "task_detail_backend"
+    DEFAULT_BACKEND = (
+        "dj_celery_panel.celery_utils.CeleryTaskDetailDjangoCeleryResultsBackend"
+    )
+
+    def get_task_detail(self, task_id: str) -> TaskDetailPage:
+        return self.backend.get_task_detail(task_id)
+
+
+class CeleryTaskDetailDjangoCeleryResultsBackend:
+    """Backend for retrieving task details from django-celery-results."""
+
+    def __init__(self, app):
         self.app = app
-        self.mode = mode
 
-    def get_task_detail(self, task_id):
-        """
-        Get detailed information about a specific task instance.
-
-        Args:
-            task_id: str - The UUID of the task
-
-        Returns:
-            dict with task details or error information
-        """
-        if self.mode == "django-celery-results":
-            return self._get_task_detail_from_db(task_id)
-        elif self.mode == "inspect":
-            return self._get_task_detail_from_inspect(task_id)
-        elif self.mode == "monitor":
-            return self._get_task_detail_from_monitor(task_id)
-        else:
-            return {"task": None, "error": "Invalid mode"}
-
-    def _get_task_detail_from_db(self, task_id):
+    def get_task_detail(self, task_id: str) -> TaskDetailPage:
         """Get task details from django-celery-results database."""
         try:
             from django_celery_results.models import TaskResult
@@ -37,7 +41,7 @@ class CeleryTaskInstanceDetailInterface:
             task = TaskResult.objects.filter(task_id=task_id).first()
 
             if not task:
-                return {"task": None, "error": "Task not found"}
+                return TaskDetailPage(task=None, error="Task not found")
 
             # Format task details
             task_detail = {
@@ -62,28 +66,11 @@ class CeleryTaskInstanceDetailInterface:
             else:
                 task_detail["duration"] = None
 
-            return {"task": task_detail, "error": None}
+            return TaskDetailPage(task=task_detail)
 
         except ImportError:
-            return {
-                "task": None,
-                "error": "django-celery-results not installed",
-            }
+            return TaskDetailPage(
+                task=None, error="django-celery-results not installed"
+            )
         except Exception as e:
-            return {"task": None, "error": str(e)}
-
-    def _get_task_detail_from_inspect(self, task_id):
-        """Get task details from worker inspection (future implementation)."""
-        # TODO: Implement inspect-based task detail retrieval
-        return {
-            "task": None,
-            "error": "Inspect mode not yet implemented",
-        }
-
-    def _get_task_detail_from_monitor(self, task_id):
-        """Get task details from event monitor (future implementation)."""
-        # TODO: Implement monitor-based task detail retrieval
-        return {
-            "task": None,
-            "error": "Monitor mode not yet implemented",
-        }
+            return TaskDetailPage(task=None, error=str(e))

@@ -4,11 +4,6 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="task-header">
-    <div class="task-info">
-        <span class="badge cursor-mode">Mode: {{ task_result_mode }}</span>
-    </div>
-</div>
 <div class="celery-tab-content">
     <div class="module">
         <h2>{% trans 'Task Execution History' %}</h2>

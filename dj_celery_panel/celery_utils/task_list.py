@@ -1,4 +1,40 @@
-class CeleryTaskListInterface:
+from dataclasses import dataclass
+from typing import Optional
+
+from .base import CeleryAbstractInterface
+
+
+@dataclass(frozen=True)
+class TaskListPage:
+    tasks: list[dict]
+    total_count: int
+    page: int
+    per_page: int
+    total_pages: int
+    has_previous: bool = False
+    has_next: bool = False
+    previous_page: Optional[int] = None
+    next_page: Optional[int] = None
+    error: Optional[str] = None
+
+
+class CeleryTaskListInterface(CeleryAbstractInterface):
+    """
+    Utility class that powers the task list search engine.
+    """
+
+    BACKEND_KEY = "task_backend"
+    DEFAULT_BACKEND = (
+        "dj_celery_panel.celery_utils.CeleryTaskListDjangoCeleryResultsBackend"
+    )
+
+    def get_tasks(self, search_query=None, page=1, per_page=50) -> TaskListPage:
+        return self.backend.get_tasks(
+            search_query=search_query, page=page, per_page=per_page
+        )
+
+
+class CeleryTaskListDjangoCeleryResultsBackend:
     """
     Utility class that powers the task list search engine.
 
@@ -12,7 +48,7 @@ class CeleryTaskListInterface:
     able to use the same interface for all three approaches.
     """
 
-    def __init__(self, app, mode="django-celery-results"):
+    def __init__(self, app):
         """
         Initialize the task list interface.
 
@@ -21,57 +57,8 @@ class CeleryTaskListInterface:
             mode: str - 'django-celery-results', 'inspect', or 'monitor'
         """
         self.app = app
-        self.mode = mode
 
-    def get_tasks(self, search_query=None, page=1, per_page=50):
-        """
-        Get tasks based on the configured mode.
-
-        Args:
-            search_query: str - Filter tasks by name (optional)
-            page: int - Page number for pagination
-            per_page: int - Number of tasks per page
-
-        Returns:
-            dict with:
-                - tasks: list of task dictionaries
-                - total_count: total number of tasks
-                - page: current page
-                - per_page: tasks per page
-                - total_pages: total number of pages
-        """
-        if self.mode == "django-celery-results":
-            return self._get_task_list_from_django_celery_results(
-                search_query, page, per_page
-            )
-        elif self.mode == "inspect":
-            return self._get_task_list_from_inspect(search_query, page, per_page)
-        elif self.mode == "monitor":
-            return self._get_task_list_from_worker_events(search_query, page, per_page)
-        else:
-            return {
-                "tasks": [],
-                "total_count": 0,
-                "page": page,
-                "per_page": per_page,
-                "total_pages": 0,
-            }
-
-    def _get_task_list_from_inspect(self, search_query=None, page=1, per_page=50):
-        """Get tasks from worker inspection (future implementation)."""
-        # TODO: Implement inspect-based task retrieval
-        return {
-            "tasks": [],
-            "total_count": 0,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": 0,
-            "error": "Inspect mode not yet implemented",
-        }
-
-    def _get_task_list_from_django_celery_results(
-        self, search_query=None, page=1, per_page=50
-    ):
+    def get_tasks(self, search_query=None, page=1, per_page=50) -> TaskListPage:
         """Get tasks from django-celery-results database."""
         try:
             from django_celery_results.models import TaskResult
@@ -109,51 +96,37 @@ class CeleryTaskListInterface:
                     }
                 )
 
-            return {
-                "tasks": tasks,
-                "total_count": paginator.count,
-                "page": page_obj.number,
-                "per_page": per_page,
-                "total_pages": paginator.num_pages,
-                "has_previous": page_obj.has_previous(),
-                "has_next": page_obj.has_next(),
-                "previous_page": (
+            return TaskListPage(
+                tasks=tasks,
+                total_count=paginator.count,
+                page=page_obj.number,
+                per_page=per_page,
+                total_pages=paginator.num_pages,
+                has_previous=page_obj.has_previous(),
+                has_next=page_obj.has_next(),
+                previous_page=(
                     page_obj.previous_page_number() if page_obj.has_previous() else None
                 ),
-                "next_page": (
+                next_page=(
                     page_obj.next_page_number() if page_obj.has_next() else None
                 ),
-            }
+            )
 
         except ImportError:
-            return {
-                "tasks": [],
-                "total_count": 0,
-                "page": page,
-                "per_page": per_page,
-                "total_pages": 0,
-                "error": "django-celery-results not installed",
-            }
+            return TaskListPage(
+                tasks=[],
+                total_count=0,
+                page=page,
+                per_page=per_page,
+                total_pages=0,
+                error="django-celery-results not installed",
+            )
         except Exception as e:
-            return {
-                "tasks": [],
-                "total_count": 0,
-                "page": page,
-                "per_page": per_page,
-                "total_pages": 0,
-                "error": str(e),
-            }
-
-    def _get_task_list_from_worker_events(self, search_query=None, page=1, per_page=50):
-        """Get tasks from event monitor (future implementation)."""
-        # TODO: Implement monitor-based task retrieval
-        return {
-            "tasks": [],
-            "total_count": 0,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": 0,
-            "error": "Monitor mode not yet implemented",
-        }
-
-
+            return TaskListPage(
+                tasks=[],
+                total_count=0,
+                page=page,
+                per_page=per_page,
+                total_pages=0,
+                error=str(e),
+            )

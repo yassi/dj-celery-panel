@@ -238,7 +238,11 @@ CELERY_QUEUES = {
 #########################
 
 DJ_CELERY_PANEL_SETTINGS = {
-    "task_result_mode": "django-celery-results",  # inspect, django-celery-results, or monitor modes
+    # Backend classes for each interface
+    "task_backend": "dj_celery_panel.celery_utils.CeleryTaskListDjangoCeleryResultsBackend",
+    "task_detail_backend": "dj_celery_panel.celery_utils.CeleryTaskDetailDjangoCeleryResultsBackend",
+    "worker_backend": "dj_celery_panel.celery_utils.CeleryWorkerListInspectBackend",
+    "queue_backend": "dj_celery_panel.celery_utils.CeleryQueueListInspectBackend",
 }
 
 
