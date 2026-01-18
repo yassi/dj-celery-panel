@@ -7,8 +7,10 @@ from django.conf import settings
 
 from .celery_utils import (
     CeleryInspector,
-    CeleryTaskListInterface,
+    CeleryQueueListInterface,
     CeleryTaskInstanceDetailInterface,
+    CeleryTaskListInterface,
+    CeleryWorkerListInterface,
 )
 
 
@@ -49,21 +51,39 @@ def workers(request):
     """
     Display active Celery workers with real-time inspection data.
     """
-    # Get celery status using inspector
-    inspector = CeleryInspector(current_app)
-    celery_status = inspector.get_status()
+    # Get configuration
+    panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
+    worker_mode = panel_settings.get("worker_mode", "inspect")
+
+    # Get workers using the interface
+    worker_interface = CeleryWorkerListInterface(current_app, mode=worker_mode)
+    worker_result = worker_interface.get_workers()
 
     # Use Django's messaging framework for errors and notifications
-    if celery_status.get("error"):
-        messages.error(request, celery_status["error"])
+    if worker_result.get("error"):
+        messages.error(request, worker_result["error"])
     elif (
-        celery_status.get("celery_available")
-        and celery_status.get("active_workers_count", 0) > 0
+        worker_result.get("celery_available")
+        and worker_result.get("active_workers_count", 0) > 0
     ):
         messages.success(
             request,
-            f"Celery is running with {celery_status['active_workers_count']} active worker(s).",
+            f"Celery is running with {worker_result['active_workers_count']} active worker(s).",
         )
+
+    # Get configuration for sidebar
+    inspector = CeleryInspector(current_app)
+    config = inspector.get_configuration_info()
+
+    # Format result to match existing template expectations
+    celery_status = {
+        "celery_available": worker_result.get("celery_available", False),
+        "workers": worker_result.get("workers", []),
+        "workers_detail": worker_result.get("workers_detail", []),
+        "active_workers_count": worker_result.get("active_workers_count", 0),
+        "error": worker_result.get("error"),
+        "config": config,
+    }
 
     context = admin.site.each_context(request)
     context.update(
@@ -133,8 +153,13 @@ def queues(request):
     """
     Display Celery queues information from active workers.
     """
-    inspector = CeleryInspector(current_app)
-    queue_result = inspector.get_queues()
+    # Get configuration
+    panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
+    queue_mode = panel_settings.get("queue_mode", "inspect")
+
+    # Get queues using the interface
+    queue_interface = CeleryQueueListInterface(current_app, mode=queue_mode)
+    queue_result = queue_interface.get_queues()
 
     if queue_result.get("error"):
         messages.warning(
