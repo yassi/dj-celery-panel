@@ -1,0 +1,128 @@
+{% extends "admin/dj_celery_panel/base.html" %}
+{% load i18n admin_urls static %}
+
+{% block content %}
+{% include "admin/dj_celery_panel/_tabs.html" %}
+
+<div class="celery-tab-content">
+    {% if queue %}
+    <div class="module">
+        <h2>{% trans 'Queue Details' %}</h2>
+        
+        <div class="results">
+            <table id="result_list">
+            <tr>
+                <th>{% trans 'Queue Name' %}</th>
+                <td><code>{{ queue.name }}</code></td>
+            </tr>
+            <tr>
+                <th>{% trans 'Exchange' %}</th>
+                <td>
+                    <code>{{ queue.exchange }}</code>
+                    {% if queue.exchange_type and queue.exchange_type != "N/A" %}
+                        <span class="config-value-muted">({{ queue.exchange_type }})</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Routing Key' %}</th>
+                <td><code>{{ queue.routing_key }}</code></td>
+            </tr>
+            <tr>
+                <th>{% trans 'Durable' %}</th>
+                <td>
+                    {% if queue.durable %}
+                        <span style="color: #30a14e;">✓ {% trans 'Yes' %}</span>
+                    {% else %}
+                        <span style="color: #d73a49;">✗ {% trans 'No' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Auto Delete' %}</th>
+                <td>
+                    {% if queue.auto_delete %}
+                        <span style="color: #d73a49;">✓ {% trans 'Yes' %}</span>
+                    {% else %}
+                        <span style="color: #30a14e;">✗ {% trans 'No' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>{% trans 'Exclusive' %}</th>
+                <td>
+                    {% if queue.exclusive %}
+                        <span style="color: #d73a49;">✓ {% trans 'Yes' %}</span>
+                    {% else %}
+                        <span style="color: #30a14e;">✗ {% trans 'No' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if queue.arguments %}
+            <tr>
+                <th>{% trans 'Arguments' %}</th>
+                <td>
+                    <pre><code>{{ queue.arguments }}</code></pre>
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th>{% trans 'Active on Workers' %}</th>
+                <td>
+                    <strong>{{ queue.workers|length }}</strong> {% trans 'worker(s)' %}
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        {% for worker in queue.workers %}
+                            <li>
+                                <a href="{% url 'dj_celery_panel:worker_detail' worker %}">
+                                    <code>{{ worker }}</code>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% if queue.exchange_json %}
+            <tr>
+                <th>{% trans 'Exchange Configuration' %}</th>
+                <td>
+                    <details>
+                        <summary style="cursor: pointer;">{% trans 'Show exchange details' %}</summary>
+                        <pre style="margin-top: 8px;"><code>{{ queue.exchange_json }}</code></pre>
+                    </details>
+                </td>
+            </tr>
+            {% endif %}
+            {% if queue.worker_configs_json %}
+            <tr>
+                <th>{% trans 'Worker Queue Configurations' %}</th>
+                <td>
+                    <details>
+                        <summary style="cursor: pointer;">{% trans 'Show worker configurations' %}</summary>
+                        <pre style="margin-top: 8px;"><code>{{ queue.worker_configs_json }}</code></pre>
+                    </details>
+                </td>
+            </tr>
+            {% endif %}
+            </table>
+        </div>
+
+        <div class="task-detail-actions">
+            <a href="{% url 'dj_celery_panel:queues' %}" class="button default">{% trans 'Back to Queues' %}</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="module">
+        <div class="empty-state-row">
+            <div class="empty-state-message">
+                <div class="empty-state-content">
+                    <span class="empty-state-icon">⚠️</span>
+                    <p class="empty-state-title">{% trans 'Queue Not Found' %}</p>
+                    <p class="empty-state-text">{% trans 'The requested queue could not be found.' %}</p>
+                    <a href="{% url 'dj_celery_panel:queues' %}" class="button">{% trans 'Back to Queues' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -7,9 +7,10 @@ in different ways (inspect API, result backends, event monitors, etc.).
 
 from .base import CeleryAbstractInterface
 from .inspector import CeleryInspector
-from .queue_list import (
-    CeleryQueueListInterface,
-    CeleryQueueListInspectBackend,
+from .queues import (
+    CeleryQueuesInspectBackend,
+    CeleryQueuesInterface,
+    QueueDetailPage,
     QueueListPage,
 )
 from .tasks import (
@@ -40,8 +41,9 @@ __all__ = [
     "CeleryWorkersInspectBackend",
     "WorkerListPage",
     "WorkerDetailPage",
-    # Queue List
-    "CeleryQueueListInterface",
-    "CeleryQueueListInspectBackend",
+    # Queues
+    "CeleryQueuesInterface",
+    "CeleryQueuesInspectBackend",
     "QueueListPage",
+    "QueueDetailPage",
 ]

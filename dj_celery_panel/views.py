@@ -5,7 +5,7 @@ from celery import current_app
 
 from .celery_utils import (
     CeleryInspector,
-    CeleryQueueListInterface,
+    CeleryQueuesInterface,
     CeleryTasksInterface,
     CeleryWorkersInterface,
 )
@@ -139,7 +139,7 @@ def queues(request):
     Display Celery queues information from active workers.
     """
     # Get queues using the interface
-    queue_interface = CeleryQueueListInterface(current_app)
+    queue_interface = CeleryQueuesInterface(current_app)
     queue_result = queue_interface.get_queues()
 
     if queue_result.error:
@@ -156,6 +156,31 @@ def queues(request):
         }
     )
     return render(request, "admin/dj_celery_panel/queues.html", context)
+
+
+@staff_member_required
+def queue_detail(request, queue_name):
+    """
+    Display detailed information about a specific queue.
+    """
+    # Get queue details using the interface
+    queue_interface = CeleryQueuesInterface(current_app)
+    result = queue_interface.get_queue_detail(queue_name)
+
+    # Handle errors
+    if result.error:
+        messages.error(request, f"Error retrieving queue: {result.error}")
+
+    context = admin.site.each_context(request)
+    context.update(
+        {
+            "title": f"Django Celery Panel - Queue {queue_name}",
+            "current_tab": "queues",
+            "queue": result.queue,
+            "queue_name": queue_name,
+        }
+    )
+    return render(request, "admin/dj_celery_panel/queue_detail.html", context)
 
 
 @staff_member_required

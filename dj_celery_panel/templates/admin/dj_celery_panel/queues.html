@@ -22,7 +22,7 @@
                 <tbody>
                     {% for queue in queues %}
                     <tr>
-                        <td><code class="queue-name">{{ queue.name }}</code></td>
+                        <td><a href="{% url 'dj_celery_panel:queue_detail' queue.name %}"><code class="queue-name">{{ queue.name }}</code></a></td>
                         <td>{{ queue.exchange }}</td>
                         <td><code class="routing-key">{{ queue.routing_key }}</code></td>
                         <td>

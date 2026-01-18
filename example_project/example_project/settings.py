@@ -241,7 +241,7 @@ DJ_CELERY_PANEL_SETTINGS = {
     # Backend classes for each interface
     "tasks_backend": "dj_celery_panel.celery_utils.CeleryTasksDjangoCeleryResultsBackend",
     "workers_backend": "dj_celery_panel.celery_utils.CeleryWorkersInspectBackend",
-    "queue_backend": "dj_celery_panel.celery_utils.CeleryQueueListInspectBackend",
+    "queues_backend": "dj_celery_panel.celery_utils.CeleryQueuesInspectBackend",
 }
 
 

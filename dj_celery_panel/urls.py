@@ -10,5 +10,6 @@ urlpatterns = [
     path("tasks/", views.tasks, name="tasks"),
     path("tasks/<str:task_id>/", views.task_detail, name="task_detail"),
     path("queues/", views.queues, name="queues"),
+    path("queues/<str:queue_name>/", views.queue_detail, name="queue_detail"),
     path("configuration/", views.configuration, name="configuration"),
 ]
