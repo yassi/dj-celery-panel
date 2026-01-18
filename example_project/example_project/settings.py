@@ -166,7 +166,8 @@ DJ_REDIS_PANEL_SETTINGS = {
 # Celery Configuration #
 #########################
 # Celery Configuration (using modern Celery 4.x+ naming)
-CELERY_BROKER_URL = "redis://redis:6379/0"
+# Use environment variable for broker URL (defaults to Docker Compose hostname)
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/0")
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 3600,

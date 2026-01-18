@@ -45,9 +45,40 @@ jobs:
             make install
             pip install "Django~=${{ matrix.django-version }}.0"
 
+      - name: Run database migrations
+        run: |
+            cd example_project
+            python manage.py migrate --noinput
+        env:
+          DB_ENGINE: postgresql
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          CELERY_BROKER_URL: redis://localhost:6379/0
+
+      - name: Start Celery worker
+        run: |
+            cd example_project
+            celery -A example_project worker --loglevel=info --detach --logfile=celery_worker.log
+        env:
+          DB_ENGINE: postgresql
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          CELERY_BROKER_URL: redis://localhost:6379/0
+
+      - name: Wait for worker to be ready
+        run: |
+            echo "Waiting for Celery worker to register..."
+            sleep 5
+
       - name: Run tests with coverage
         run: |
-            pytest --cov=dj_cache_panel --cov-report=xml
+            pytest --cov=dj_celery_panel --cov-report=xml
         env:
           TEST_DB_BACKEND: postgresql
           POSTGRES_HOST: localhost
@@ -55,6 +86,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
+          CELERY_BROKER_URL: redis://localhost:6379/0
+
+      - name: Show Celery worker logs on failure
+        if: failure()
+        run: |
+            echo "=== Celery Worker Logs ==="
+            cat example_project/celery_worker.log || echo "No worker log file found"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

@@ -35,6 +35,9 @@ def pytest_configure(config):
     else:
         os.environ.setdefault("DB_ENGINE", "sqlite")
 
+    # Set Celery broker URL (defaults to localhost for tests)
+    os.environ.setdefault("CELERY_BROKER_URL", "redis://localhost:6379/0")
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "example_project.settings")
 
     if not settings.configured:
