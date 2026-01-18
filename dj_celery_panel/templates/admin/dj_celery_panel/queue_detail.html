@@ -16,6 +16,35 @@
                 <td><code>{{ queue.name }}</code></td>
             </tr>
             <tr>
+                <th>{% trans 'Queue Depth (Messages)' %}</th>
+                <td>
+                    {% if queue.message_count is not none %}
+                        <strong>{{ queue.message_count }}</strong>
+                    {% elif queue.broker_query_error %}
+                        <span class="config-value-muted">
+                            ⚠️ {% trans 'Unable to query broker' %}
+                            <details style="margin-top: 4px;">
+                                <summary style="cursor: pointer; font-size: 0.9em;">{% trans 'Show error' %}</summary>
+                                <code style="font-size: 0.85em;">{{ queue.broker_query_error }}</code>
+                            </details>
+                        </span>
+                    {% else %}
+                        <span class="config-value-muted">{% trans 'Unknown' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if queue.consumer_count is not none %}
+            <tr>
+                <th>{% trans 'Active Consumers' %}</th>
+                <td>
+                    <strong>{{ queue.consumer_count }}</strong>
+                    {% if queue.consumer_count == 0 %}
+                        <span style="color: #d73a49;">⚠️ {% trans 'No consumers!' %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
                 <th>{% trans 'Exchange' %}</th>
                 <td>
                     <code>{{ queue.exchange }}</code>

@@ -51,7 +51,80 @@ class CeleryQueuesInspectBackend:
         # Use the inspector's get_queues method which already handles
         # queue inspection using the active_queues() API
         result = self.inspector.get_queues()
-        return QueueListPage(queues=result.get("queues", []), error=result.get("error"))
+
+        # Enhance each queue with message count from broker
+        queues = result.get("queues", [])
+        for queue in queues:
+            broker_info = self._get_queue_length_from_broker(queue["name"])
+            queue["message_count"] = broker_info.get("length")
+            queue["broker_query_error"] = broker_info.get("error")
+
+        return QueueListPage(queues=queues, error=result.get("error"))
+
+    def _get_queue_length_from_broker(self, queue_name: str) -> dict:
+        """
+        Get queue length by querying the broker directly.
+        Returns dict with 'length' (int or None) and 'error' (str or None).
+        """
+        result = {"length": None, "error": None}
+
+        try:
+            broker_url = self.app.conf.get("broker_url", "")
+
+            # Redis broker
+            if broker_url.startswith("redis://"):
+                try:
+                    import redis
+
+                    # Parse Redis connection info
+                    r = redis.from_url(broker_url)
+
+                    # Default queue key format in Celery with Redis
+                    # Format is typically "celery" for default queue or the queue name
+                    queue_key = queue_name
+
+                    # Try to get the length
+                    length = r.llen(queue_key)
+                    result["length"] = length
+
+                except ImportError:
+                    result["error"] = "redis library not installed"
+                except Exception as e:
+                    result["error"] = f"Redis error: {str(e)}"
+
+            # RabbitMQ broker
+            elif broker_url.startswith("amqp://") or broker_url.startswith("pyamqp://"):
+                try:
+                    import amqp
+
+                    # Parse connection info from broker URL
+                    conn = amqp.Connection(broker_url)
+                    conn.connect()
+
+                    channel = conn.channel()
+
+                    # Passive declare to get queue info without creating it
+                    # Returns (queue_name, message_count, consumer_count)
+                    name, message_count, consumer_count = channel.queue_declare(
+                        queue=queue_name, passive=True
+                    )
+
+                    result["length"] = message_count
+                    result["consumer_count"] = consumer_count
+
+                    conn.close()
+
+                except ImportError:
+                    result["error"] = "amqp library not installed"
+                except Exception as e:
+                    result["error"] = f"RabbitMQ error: {str(e)}"
+            else:
+                result["error"] = "Unsupported broker type for queue length inspection"
+
+        except Exception as e:
+            result["error"] = f"Error querying broker: {str(e)}"
+
+        return result
 
     def get_queue_detail(self, queue_name: str) -> QueueDetailPage:
         """Get detailed information about a single queue."""
@@ -63,7 +136,7 @@ class CeleryQueuesInspectBackend:
             if not active_queues_result:
                 return QueueDetailPage(
                     queue=None,
-                    error=f"No workers are currently running",
+                    error="No workers are currently running",
                 )
 
             # Find all workers that have this queue
@@ -117,6 +190,12 @@ class CeleryQueuesInspectBackend:
                     queue=None,
                     error=f"Queue '{queue_name}' not found in any active workers",
                 )
+
+            # Get queue length from broker
+            broker_info = self._get_queue_length_from_broker(queue_name)
+            queue_detail["message_count"] = broker_info.get("length")
+            queue_detail["consumer_count"] = broker_info.get("consumer_count")
+            queue_detail["broker_query_error"] = broker_info.get("error")
 
             # Format complex data as JSON
             queue_detail["exchange_json"] = json.dumps(
