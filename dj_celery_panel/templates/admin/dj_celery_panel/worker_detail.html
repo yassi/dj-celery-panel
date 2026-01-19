@@ -5,6 +5,8 @@
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
 <div class="celery-tab-content">
+    {% include "admin/dj_celery_panel/_backend_info.html" %}
+    
     {% if worker %}
     <div class="module">
         <h2>{% trans 'Worker Details' %}</h2>

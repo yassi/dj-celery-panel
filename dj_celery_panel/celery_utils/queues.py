@@ -41,6 +41,9 @@ class CeleryQueuesInterface(CeleryAbstractInterface):
 
 class CeleryQueuesInspectBackend:
     """Backend for retrieving queue information from Celery inspect API."""
+    
+    BACKEND_DESCRIPTION = "Queue bindings and routing configuration"
+    DATA_SOURCE = "Celery Inspect API"
 
     def __init__(self, app):
         self.app = app

@@ -44,6 +44,9 @@ class CeleryWorkersInterface(CeleryAbstractInterface):
 
 class CeleryWorkersInspectBackend:
     """Backend for retrieving worker information from Celery inspect API."""
+    
+    BACKEND_DESCRIPTION = "Real-time worker status and statistics"
+    DATA_SOURCE = "Celery Inspect API"
 
     def __init__(self, app):
         self.app = app

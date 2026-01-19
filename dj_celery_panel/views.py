@@ -65,6 +65,9 @@ def workers(request):
     inspector = CeleryInspector(current_app)
     config = inspector.get_configuration_info()
 
+    # Get backend info
+    backend_info = worker_interface.get_backend_info()
+
     # Format result to match existing template expectations
     celery_status = {
         "celery_available": worker_result.celery_available,
@@ -81,6 +84,7 @@ def workers(request):
             "title": "Django Celery Panel - Active Workers",
             "celery_status": celery_status,
             "current_tab": "workers",
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/workers.html", context)
@@ -113,6 +117,9 @@ def tasks(request):
     if task_data.error:
         messages.warning(request, f"Task retrieval warning: {task_data.error}")
 
+    # Get backend info
+    backend_info = task_interface.get_backend_info()
+
     context = admin.site.each_context(request)
     context.update(
         {
@@ -128,6 +135,7 @@ def tasks(request):
             "previous_page": task_data.previous_page,
             "next_page": task_data.next_page,
             "search_query": search_query,
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/tasks.html", context)
@@ -147,12 +155,16 @@ def queues(request):
             request, f"Could not retrieve queue information: {queue_result.error}"
         )
 
+    # Get backend info
+    backend_info = queue_interface.get_backend_info()
+
     context = admin.site.each_context(request)
     context.update(
         {
             "title": "Django Celery Panel - Queues",
             "current_tab": "queues",
             "queues": queue_result.queues,
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/queues.html", context)
@@ -171,6 +183,9 @@ def queue_detail(request, queue_name):
     if result.error:
         messages.error(request, f"Error retrieving queue: {result.error}")
 
+    # Get backend info
+    backend_info = queue_interface.get_backend_info()
+
     context = admin.site.each_context(request)
     context.update(
         {
@@ -178,6 +193,7 @@ def queue_detail(request, queue_name):
             "current_tab": "queues",
             "queue": result.queue,
             "queue_name": queue_name,
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/queue_detail.html", context)
@@ -196,12 +212,16 @@ def task_detail(request, task_id):
     if result.error:
         messages.error(request, f"Error retrieving task: {result.error}")
 
+    # Get backend info
+    backend_info = task_interface.get_backend_info()
+
     context = admin.site.each_context(request)
     context.update(
         {
             "title": f"Django Celery Panel - Task {task_id[:8]}...",
             "current_tab": "tasks",
             "task": result.task,
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/task_detail.html", context)
@@ -220,6 +240,9 @@ def worker_detail(request, worker_id):
     if result.error:
         messages.error(request, f"Error retrieving worker: {result.error}")
 
+    # Get backend info
+    backend_info = worker_interface.get_backend_info()
+
     context = admin.site.each_context(request)
     context.update(
         {
@@ -227,6 +250,7 @@ def worker_detail(request, worker_id):
             "current_tab": "workers",
             "worker": result.worker,
             "worker_id": worker_id,
+            "backend_info": backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/worker_detail.html", context)

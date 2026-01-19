@@ -9,10 +9,15 @@ class CeleryAbstractInterface:
     1. Loading backend class path from Django settings
     2. Dynamically importing the backend class
     3. Instantiating the backend with the Celery app
+    4. Providing backend metadata for display in the UI
 
     Subclasses must define:
-    - BACKEND_KEY: The settings key to look for (e.g., "task_backend")
+    - BACKEND_KEY: The settings key to look for (e.g., "tasks_backend")
     - DEFAULT_BACKEND: The default backend class path if not configured
+    
+    Backend classes should define:
+    - BACKEND_DESCRIPTION: Short description of backend capabilities
+    - DATA_SOURCE: Where the backend retrieves its data from
     """
 
     BACKEND_KEY = None
@@ -57,3 +62,18 @@ class CeleryAbstractInterface:
         module_path, class_name = backend_path.rsplit(".", 1)
         module = importlib.import_module(module_path)
         return getattr(module, class_name)
+
+    def get_backend_info(self):
+        """
+        Get information about the currently configured backend.
+        
+        Returns:
+            dict: Backend metadata including name, module, full path, description, and data source
+        """
+        return {
+            "name": self.backend.__class__.__name__,
+            "module": self.backend.__class__.__module__,
+            "full_path": f"{self.backend.__class__.__module__}.{self.backend.__class__.__name__}",
+            "description": getattr(self.backend.__class__, "BACKEND_DESCRIPTION", "No description available"),
+            "data_source": getattr(self.backend.__class__, "DATA_SOURCE", "Unknown"),
+        }

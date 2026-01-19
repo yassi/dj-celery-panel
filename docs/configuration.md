@@ -109,6 +109,15 @@ Uses Celery's inspect API to fetch queue information from running workers.
 - At least one running Celery worker
 - Workers consuming from the queues
 
+### Backend Information Display
+
+Each page (Tasks, Workers, Queues) displays a compact info line at the top showing:
+
+- **Backend Class Name**: The class being used
+- **Data Source**: Where the backend retrieves its data
+
+This helps you understand how each page is retrieving its data and verify that custom backends are configured correctly.
+
 ### Creating Custom Backends
 
 You can implement custom backends by extending the `CeleryAbstractInterface` base class. This is useful when:
@@ -128,6 +137,10 @@ class CustomTasksBackend(CeleryAbstractInterface):
     """
     Custom backend that fetches tasks from an external API or custom database.
     """
+    
+    # Backend metadata displayed in the UI
+    BACKEND_DESCRIPTION = "Aggregated task data with custom filtering"
+    DATA_SOURCE = "External Monitoring API"
     
     def get_tasks(self, search_query=None, page=1, per_page=50):
         """

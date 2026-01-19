@@ -56,6 +56,9 @@ class CeleryTasksDjangoCeleryResultsBackend:
     This backend provides both list and detail views by querying the
     django-celery-results database directly.
     """
+    
+    BACKEND_DESCRIPTION = "Task history with pagination and search"
+    DATA_SOURCE = "Django Database (django-celery-results)"
 
     def __init__(self, app):
         """

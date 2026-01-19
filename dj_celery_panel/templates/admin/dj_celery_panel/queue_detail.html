@@ -5,6 +5,8 @@
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
 <div class="celery-tab-content">
+    {% include "admin/dj_celery_panel/_backend_info.html" %}
+    
     {% if queue %}
     <div class="module">
         <h2>{% trans 'Queue Details' %}</h2>
