@@ -16,8 +16,17 @@ Django Celery Panel is a Django admin extension that provides a web interface fo
 - **Periodic Tasks**: View scheduled periodic tasks and their schedules
 - **Real-time Data**: Live information from Celery's inspect API
 - **Django Admin Integration**: Seamlessly integrated into your existing Django admin interface
+- **Swappable Backends**: Pluggable architecture allows custom data sources and implementations
 
 **Status:** This project is currently in active development.
+
+### Why Django Celery Panel?
+
+**Simple Integration**: No separate services to run, no complex setup. Just add to `INSTALLED_APPS` and you're monitoring Celery through Django Admin.
+
+**Flexible Architecture**: Built with swappable backends that let you customize how data is retrieved. Start with defaults, swap in custom implementations as you grow.
+
+**No Lock-in**: The pluggable backend system means you can switch data sources, add custom logic, or integrate with existing monitoring tools without touching the UI.
 
 ## Features in Detail
 

@@ -25,6 +25,7 @@
 - **Periodic Tasks**: View scheduled periodic tasks and their schedules
 - **Real-time Inspection**: Live data from Celery's inspect API
 - **Django Admin Integration**: Seamlessly integrated into your existing Django admin interface
+- **Swappable Backends**: Pluggable architecture for custom data sources and monitoring integrations
 
 ### Project Structure
 
@@ -45,7 +46,57 @@ dj-celery-panel/
 - Python 3.9+
 - Django 4.2+
 
+## Architecture
 
+### Swappable Backend System
+
+Django Celery Panel is built with a **pluggable backend architecture** that allows you to customize how data is retrieved and displayed. Each feature area (tasks, workers, queues) uses a configurable backend class, making it easy to adapt to different Celery configurations or add custom functionality.
+
+#### Why Swappable Backends?
+
+- **Flexibility**: Switch between different data sources (inspect API, database, custom APIs)
+- **Extensibility**: Implement custom backends for specialized needs
+- **Performance**: Choose backends optimized for your infrastructure
+- **Future-proof**: Add support for new Celery features without breaking changes
+
+#### Available Backends
+
+**Tasks Backends:**
+- `CeleryTasksDjangoCeleryResultsBackend` - Uses django-celery-results for comprehensive task history (default)
+- Custom: Implement your own by extending `CeleryAbstractInterface`
+
+**Workers Backends:**
+- `CeleryWorkersInspectBackend` - Real-time worker data via Celery's inspect API (default)
+- Custom: Could implement monitoring via Redis, custom metrics services, etc.
+
+**Queues Backends:**
+- `CeleryQueuesInspectBackend` - Queue information via Celery's inspect API (default)
+- Custom: Could implement queue monitoring via broker-specific APIs
+
+#### Example: Custom Backend
+
+```python
+from dj_celery_panel.celery_utils import CeleryAbstractInterface
+
+class CustomTasksBackend(CeleryAbstractInterface):
+    """Custom backend that fetches tasks from your own API."""
+    
+    def get_tasks(self, search_query=None, page=1, per_page=50):
+        # Your custom implementation
+        # Fetch from external API, custom database, etc.
+        return TaskListPage(...)
+    
+    def get_task_detail(self, task_id):
+        # Your custom implementation
+        return TaskDetailPage(...)
+
+# Configure in settings.py
+DJ_CELERY_PANEL_SETTINGS = {
+    "tasks_backend": "myapp.backends.CustomTasksBackend",
+}
+```
+
+This architecture means you're never locked into a specific implementation. As your infrastructure evolves, Django Celery Panel can evolve with it.
 
 ## Screenshots
 

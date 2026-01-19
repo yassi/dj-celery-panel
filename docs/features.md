@@ -220,6 +220,66 @@ Unlike many Django admin apps, Django Celery Panel:
 
 ---
 
+## Swappable Backend Architecture
+
+Django Celery Panel is built with a **pluggable backend system** that gives you complete flexibility over how data is retrieved and displayed.
+
+### Why This Matters
+
+Unlike monolithic monitoring tools, Django Celery Panel doesn't lock you into a specific implementation. Each feature area (tasks, workers, queues) uses a configurable backend class that you can swap out or customize.
+
+### Default Backends
+
+Out of the box, Django Celery Panel uses:
+
+- **Tasks**: `CeleryTasksDjangoCeleryResultsBackend` - Fetches task history from django-celery-results database
+- **Workers**: `CeleryWorkersInspectBackend` - Gets real-time worker data via Celery's inspect API
+- **Queues**: `CeleryQueuesInspectBackend` - Retrieves queue information via Celery's inspect API
+
+### Custom Implementations
+
+Need something different? Implement your own backend:
+
+```python
+from dj_celery_panel.celery_utils import CeleryAbstractInterface
+
+class CustomTasksBackend(CeleryAbstractInterface):
+    def get_tasks(self, search_query=None, page=1, per_page=50):
+        # Fetch from Redis, external API, custom database, etc.
+        return TaskListPage(...)
+```
+
+Then register it in settings:
+
+```python
+DJ_CELERY_PANEL_SETTINGS = {
+    "tasks_backend": "myapp.backends.CustomTasksBackend",
+}
+```
+
+### Use Cases
+
+This architecture enables:
+
+- **Multi-source aggregation**: Combine data from multiple task result backends
+- **External monitoring integration**: Connect to Datadog, New Relic, or custom metrics services
+- **Performance optimization**: Add caching, rate limiting, or data aggregation layers
+- **Custom business logic**: Filter, transform, or enrich data before display
+- **Gradual migration**: Switch backends without changing the UI
+- **A/B testing**: Test different implementations in production
+
+### Benefits
+
+1. **No Vendor Lock-in**: You control the data source
+2. **Future-proof**: Add support for new Celery features or storage backends
+3. **Incremental Adoption**: Start simple, customize as you scale
+4. **Integration-friendly**: Works with existing monitoring infrastructure
+5. **Extensible**: The same panel UI works with any backend implementation
+
+See the [Configuration](configuration.md) guide for detailed examples and the complete backend interface specification.
+
+---
+
 ## Real-Time Data
 
 All data displayed in Django Celery Panel is **real-time** and comes from:
@@ -230,6 +290,8 @@ All data displayed in Django Celery Panel is **real-time** and comes from:
 4. **Celery Beat Schedule**: For periodic task information
 
 This means you always see the current state of your Celery infrastructure, not cached or stale data.
+
+With the swappable backend architecture, you can customize these data sources to fit your infrastructure's needs.
 
 ---
 
