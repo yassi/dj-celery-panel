@@ -78,6 +78,7 @@ Configuration display includes:
 
 ## Quick Links
 
+- [Features](features.md) - Detailed features with screenshots
 - [Installation](installation.md)
 - [Configuration](configuration.md)
 - [Development](development.md)

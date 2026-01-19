@@ -38,6 +38,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Features: features.md
   - Getting Started:
     - Installation: installation.md
     - Configuration: configuration.md
