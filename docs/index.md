@@ -1,6 +1,6 @@
 # Django Celery Panel
 
-Your Celery task inspector inside the Django admin.
+ DJ Celery Panel brings Celery monitoring directly into Django Admin. No separate services to deploy, no extra infrastructure to maintain — just add it to INSTALLED_APPS and you're done.
 
 ## Overview
 
