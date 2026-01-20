@@ -12,11 +12,12 @@
             <h2>{% trans 'Task Execution History' %}</h2>
             <br />
             
-            <!-- Search Bar -->
+            <!-- Search and Filter Form -->
             <form method="get" class="search-form">
                 <div class="form-row search-form-row">
                     <div class="search-form-fields">
                         <div class="search-field-group">
+                            <label for="searchbar">{% trans 'Search' %}</label>
                             <input 
                             type="text" 
                             name="search" 
@@ -26,14 +27,24 @@
                             style="width: 300px;"
                             >
                         </div>
+                        {% if show_filters %}
                         <div class="search-field-group">
+                            <label for="filter-select">{% trans 'Filter by state' %}</label>
+                            <select name="filter" id="filter-select">
+                                {% for filter in task_filters %}
+                                <option value="{% if filter.value %}{{ filter.value }}{% endif %}" {% if filter.selected %}selected{% endif %}>
+                                    {{ filter.label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div class="search-field-group">
+                            <label>&nbsp;</label>
                             <input type="submit" value="{% trans 'Search' %}">
                         </div>
                     </div>
                 </div>
-                {% if current_filter %}
-                <input type="hidden" name="filter" value="{{ current_filter }}">
-                {% endif %}
             </form>
         
         <!-- Tasks Table -->
@@ -146,31 +157,5 @@
         {% endif %}
         </div>
     </div>
-    
-    {% if show_filters %}
-    <!-- Django Admin-style Filter Sidebar -->
-    <search id="changelist-filter" aria-labelledby="changelist-filter-header">
-        <h2 id="changelist-filter-header">{% trans 'Filter' %}</h2>
-        
-        <details data-filter-title="Task State" open>
-            <summary>{% trans 'By task state' %}</summary>
-            <ul>
-                {% for filter in task_filters %}
-                <li{% if filter.selected %} class="selected"{% endif %}>
-                    {% if filter.value %}
-                    <a href="?filter={{ filter.value }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                        {{ filter.label }}
-                    </a>
-                    {% else %}
-                    <a href="?{% if search_query %}search={{ search_query }}{% endif %}">
-                        {{ filter.label }}
-                    </a>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-        </details>
-    </search>
-    {% endif %}
 </div>
 {% endblock %}

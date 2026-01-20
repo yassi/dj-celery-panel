@@ -99,6 +99,9 @@ def tasks(request):
 
     search_query = request.GET.get("search", "").strip()
     filter_type = request.GET.get("filter", None)
+    # Convert string "None" or empty string to actual Python None
+    if filter_type in ("None", "", None):
+        filter_type = None
     per_page = 50
 
     # Get tasks using the interface
