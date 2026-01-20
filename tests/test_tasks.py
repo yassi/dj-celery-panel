@@ -47,14 +47,14 @@ class TestTasksPageWithDatabaseBackend(CeleryPanelTestCase):
         # Should have filter in context
         self.assertEqual(response.context["current_filter"], "success")
 
-    def test_tasks_page_shows_filter_sidebar_with_multiple_options(self):
-        """Test that filter sidebar shows when backend has multiple filter options."""
+    def test_tasks_page_shows_filter_dropdown_with_multiple_options(self):
+        """Test that filter dropdown shows when backend has multiple filter options."""
         response = self.client.get(reverse("dj_celery_panel:tasks"))
 
         self.assertEqual(response.status_code, 200)
-        # Database backend has multiple filters, should show sidebar
+        # Database backend has multiple filters, should show dropdown
         self.assertTrue(response.context["show_filters"])
-        self.assertContains(response, 'id="changelist-filter"')
+        self.assertContains(response, 'id="filter-select"')
 
     def test_tasks_page_filter_options(self):
         """Test that correct filter options are available for database backend."""
@@ -219,16 +219,16 @@ class TestTasksPageWithInspectBackend(CeleryPanelTestCase):
         }
     )
     @patch("celery.app.control.Inspect.active")
-    def test_inspect_backend_no_filter_sidebar(self, mock_active):
-        """Test that filter sidebar doesn't show with inspect backend (only one option)."""
+    def test_inspect_backend_no_filter_dropdown(self, mock_active):
+        """Test that filter dropdown doesn't show with inspect backend (only one option)."""
         mock_active.return_value = None
 
         response = self.client.get(reverse("dj_celery_panel:tasks"))
 
         self.assertEqual(response.status_code, 200)
-        # Inspect backend has only one filter option, should not show sidebar
+        # Inspect backend has only one filter option, should not show dropdown
         self.assertFalse(response.context["show_filters"])
-        self.assertNotContains(response, 'id="changelist-filter"')
+        self.assertNotContains(response, 'id="filter-select"')
 
     @override_settings(
         DJ_CELERY_PANEL_SETTINGS={
