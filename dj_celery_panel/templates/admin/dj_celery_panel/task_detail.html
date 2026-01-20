@@ -4,8 +4,9 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="celery-tab-content">
-    {% if task %}
+{% include "admin/dj_celery_panel/_backend_info.html" %}
+
+{% if task %}
     <div class="module">
         <h2>{% trans 'Task Details' %}</h2>
         
@@ -32,10 +33,12 @@
                         <span class="task-status task-status-success">{% trans 'SUCCESS' %}</span>
                     {% elif task.status == "FAILURE" %}
                         <span class="task-status task-status-failure">{% trans 'FAILURE' %}</span>
-                    {% elif task.status == "STARTED" %}
-                        <span class="task-status task-status-active">{% trans 'STARTED' %}</span>
+                    {% elif task.status == "STARTED" or task.status == "ACTIVE" %}
+                        <span class="task-status task-status-active">{% trans 'ACTIVE' %}</span>
                     {% elif task.status == "PENDING" %}
                         <span class="task-status task-status-reserved">{% trans 'PENDING' %}</span>
+                    {% elif task.status == "RESERVED" %}
+                        <span class="task-status task-status-reserved">{% trans 'RESERVED' %}</span>
                     {% elif task.status == "RETRY" %}
                         <span class="task-status task-status-retry">{% trans 'RETRY' %}</span>
                     {% elif task.status == "REVOKED" %}
@@ -122,7 +125,7 @@
             <a href="{% url 'dj_celery_panel:tasks' %}" class="button default">{% trans 'Back to Tasks' %}</a>
         </div>
     </div>
-    {% else %}
+{% else %}
     <div class="module">
         <div class="empty-state-row">
             <div class="empty-state-message">
@@ -135,6 +138,5 @@
             </div>
         </div>
     </div>
-    {% endif %}
-</div>
+{% endif %}
 {% endblock %}

@@ -4,8 +4,9 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="celery-tab-content">
-    {% if worker %}
+{% include "admin/dj_celery_panel/_backend_info.html" %}
+
+{% if worker %}
     <div class="module">
         <h2>{% trans 'Worker Details' %}</h2>
         
@@ -168,7 +169,7 @@
             <a href="{% url 'dj_celery_panel:workers' %}" class="button default">{% trans 'Back to Workers' %}</a>
         </div>
     </div>
-    {% else %}
+{% else %}
     <div class="module">
         <div class="empty-state-row">
             <div class="empty-state-message">
@@ -181,6 +182,5 @@
             </div>
         </div>
     </div>
-    {% endif %}
-</div>
+{% endif %}
 {% endblock %}

@@ -4,8 +4,9 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="celery-tab-content">
-    <div class="module">
+{% include "admin/dj_celery_panel/_backend_info.html" %}
+
+<div class="module">
         <h2>{% trans 'Active Task Queues' %}</h2>
         
         {% if queues %}
@@ -59,5 +60,4 @@
         </div>
         {% endif %}
     </div>
-</div>
 {% endblock %}

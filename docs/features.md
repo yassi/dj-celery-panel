@@ -244,6 +244,10 @@ Need something different? Implement your own backend:
 from dj_celery_panel.celery_utils import CeleryAbstractInterface
 
 class CustomTasksBackend(CeleryAbstractInterface):
+    # Backend metadata - displayed in the UI
+    BACKEND_DESCRIPTION = "Data from custom monitoring"
+    DATA_SOURCE = "Custom API"
+    
     def get_tasks(self, search_query=None, page=1, per_page=50):
         # Fetch from Redis, external API, custom database, etc.
         return TaskListPage(...)
@@ -256,6 +260,10 @@ DJ_CELERY_PANEL_SETTINGS = {
     "tasks_backend": "myapp.backends.CustomTasksBackend",
 }
 ```
+
+### Backend Information Display
+
+Each page shows a compact info line at the top displaying which backend is active and where it gets its data from. This helps you understand how data is being retrieved and verify that custom backends are working correctly.
 
 ### Use Cases
 
