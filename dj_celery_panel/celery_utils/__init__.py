@@ -15,6 +15,7 @@ from .queues import (
 )
 from .tasks import (
     CeleryTasksDjangoCeleryResultsBackend,
+    CeleryTasksInspectBackend,
     CeleryTasksInterface,
     TaskDetailPage,
     TaskListPage,
@@ -34,6 +35,7 @@ __all__ = [
     # Tasks
     "CeleryTasksInterface",
     "CeleryTasksDjangoCeleryResultsBackend",
+    "CeleryTasksInspectBackend",
     "TaskListPage",
     "TaskDetailPage",
     # Workers

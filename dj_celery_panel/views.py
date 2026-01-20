@@ -55,11 +55,6 @@ def workers(request):
     # Use Django's messaging framework for errors and notifications
     if worker_result.error:
         messages.error(request, worker_result.error)
-    elif worker_result.celery_available and worker_result.active_workers_count > 0:
-        messages.success(
-            request,
-            f"Celery is running with {worker_result.active_workers_count} active worker(s).",
-        )
 
     # Get configuration for sidebar
     inspector = CeleryInspector(current_app)
@@ -103,22 +98,42 @@ def tasks(request):
         page = 1
 
     search_query = request.GET.get("search", "").strip()
+    filter_type = request.GET.get("filter", None)
     per_page = 50
 
     # Get tasks using the interface
     task_interface = CeleryTasksInterface(current_app)
+
+    # Get task data (interface will apply backend's default filter if needed)
     task_data = task_interface.get_tasks(
         search_query=search_query if search_query else None,
         page=page,
         per_page=per_page,
+        filter_type=filter_type,
     )
 
     # Handle errors
     if task_data.error:
         messages.warning(request, f"Task retrieval warning: {task_data.error}")
 
-    # Get backend info
+    # Get backend info and available filters
     backend_info = task_interface.get_backend_info()
+    available_filters = task_interface.get_available_filters()
+
+    # Get the actual filter that was used (may differ from filter_type if backend has default)
+    effective_filter = (
+        filter_type if filter_type is not None else task_interface.get_default_filter()
+    )
+
+    # Add "selected" flag to each filter based on effective filter
+    task_filters = []
+    for filter_option in available_filters:
+        filter_option_copy = filter_option.copy()
+        filter_option_copy["selected"] = filter_option["value"] == effective_filter
+        task_filters.append(filter_option_copy)
+
+    # Show filters only if there are multiple options to choose from
+    show_filters = len(task_filters) > 1
 
     context = admin.site.each_context(request)
     context.update(
@@ -136,6 +151,9 @@ def tasks(request):
             "next_page": task_data.next_page,
             "search_query": search_query,
             "backend_info": backend_info,
+            "show_filters": show_filters,
+            "task_filters": task_filters,
+            "current_filter": filter_type,
         }
     )
     return render(request, "admin/dj_celery_panel/tasks.html", context)

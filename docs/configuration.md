@@ -68,14 +68,47 @@ Uses `django-celery-results` to provide comprehensive task history stored in you
 
 **Features:**
 - Full task history with pagination
-- Search and filtering capabilities
+- Search by task name or task ID
+- Filter by task status
 - Task results and exception information
 - Complete task metadata (args, kwargs, timestamps)
 - Works with any Celery broker
 
+**Available Filters:**
+- All - Show all tasks
+- Pending - Tasks waiting to be executed
+- Started - Currently executing tasks
+- Success - Successfully completed tasks
+- Failure - Failed tasks
+- Retry - Tasks being retried
+- Revoked - Cancelled tasks
+
 **Requirements:**
 - `django-celery-results` installed
 - `CELERY_RESULT_BACKEND = 'django-db'` configured
+
+**`CeleryTasksInspectBackend`**
+
+Uses Celery's inspect API to provide real-time information about currently executing tasks.
+
+**Features:**
+- Real-time monitoring of active (currently executing) tasks
+- Search by task name or task ID
+- No database storage required
+- Single fanout request to workers (optimized for performance)
+
+**Requirements:**
+- At least one running Celery worker
+- Workers must be reachable via the broker
+
+**Configuration Example:**
+```python
+DJ_CELERY_PANEL_SETTINGS = {
+    "tasks_backend": "dj_celery_panel.celery_utils.CeleryTasksInspectBackend",
+}
+```
+
+**Note:** This backend shows only live active tasks. For complete task history including finished tasks, use `CeleryTasksDjangoCeleryResultsBackend`.
 
 #### Workers Backends
 
@@ -131,9 +164,9 @@ You can implement custom backends by extending the `CeleryAbstractInterface` bas
 
 ```python
 # myapp/celery_backends.py
-from dj_celery_panel.celery_utils import CeleryAbstractInterface, TaskListPage, TaskDetailPage
+from dj_celery_panel.celery_utils import TaskListPage, TaskDetailPage
 
-class CustomTasksBackend(CeleryAbstractInterface):
+class CustomTasksBackend:
     """
     Custom backend that fetches tasks from an external API or custom database.
     """
@@ -142,16 +175,36 @@ class CustomTasksBackend(CeleryAbstractInterface):
     BACKEND_DESCRIPTION = "Aggregated task data with custom filtering"
     DATA_SOURCE = "External Monitoring API"
     
-    def get_tasks(self, search_query=None, page=1, per_page=50):
+    # Define default filter behavior
+    DEFAULT_FILTER = None  # or a specific default like "running"
+    
+    # Define available filters for the UI
+    AVAILABLE_FILTERS = [
+        {"value": None, "label": "All"},
+        {"value": "running", "label": "Running"},
+        {"value": "completed", "label": "Completed"},
+        {"value": "failed", "label": "Failed"},
+    ]
+    
+    def __init__(self, app):
+        self.app = app
+    
+    def get_tasks(self, search_query=None, page=1, per_page=50, filter_type=None):
         """
         Fetch task list from your custom source.
+        
+        Args:
+            search_query: Optional search string
+            page: Page number
+            per_page: Items per page
+            filter_type: Filter value (or None for default)
         
         Returns:
             TaskListPage: Object containing tasks and pagination info
         """
         # Your custom implementation
         # Example: Fetch from external monitoring service
-        tasks = self.fetch_from_custom_source(search_query, page, per_page)
+        tasks = self.fetch_from_custom_source(search_query, page, per_page, filter_type)
         
         return TaskListPage(
             tasks=tasks,
@@ -174,7 +227,7 @@ class CustomTasksBackend(CeleryAbstractInterface):
             error=None if task else "Task not found"
         )
     
-    def fetch_from_custom_source(self, search_query, page, per_page):
+    def fetch_from_custom_source(self, search_query, page, per_page, filter_type):
         # Your custom implementation
         pass
 ```
@@ -193,13 +246,28 @@ DJ_CELERY_PANEL_SETTINGS = {
 
 ### Backend Interface
 
-All backends must implement the methods defined in `CeleryAbstractInterface`. Here are the key methods:
+All backends must implement specific methods and can optionally define attributes for filtering behavior:
 
 #### Tasks Backend Interface
 
 ```python
-class TasksBackend(CeleryAbstractInterface):
-    def get_tasks(self, search_query=None, page=1, per_page=50):
+class TasksBackend:
+    # Optional: Backend metadata
+    BACKEND_DESCRIPTION = "Description of what this backend does"
+    DATA_SOURCE = "Where data comes from"
+    
+    # Optional: Filter configuration
+    DEFAULT_FILTER = None  # What filter to use when none specified
+    AVAILABLE_FILTERS = [  # List of available filters for UI
+        {"value": None, "label": "All"},
+        {"value": "active", "label": "Active"},
+    ]
+    
+    def __init__(self, app):
+        """Initialize with Celery app instance."""
+        self.app = app
+    
+    def get_tasks(self, search_query=None, page=1, per_page=50, filter_type=None):
         """Return TaskListPage with tasks and pagination."""
         pass
     
@@ -207,6 +275,12 @@ class TasksBackend(CeleryAbstractInterface):
         """Return TaskDetailPage with task details."""
         pass
 ```
+
+**Key Attributes:**
+- `DEFAULT_FILTER`: Value to use when no filter is specified in the request (optional)
+- `AVAILABLE_FILTERS`: List of filter options to show in the UI (optional)
+- `BACKEND_DESCRIPTION`: Human-readable description (optional)
+- `DATA_SOURCE`: Where the backend retrieves data from (optional)
 
 #### Workers Backend Interface
 

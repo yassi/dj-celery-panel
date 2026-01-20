@@ -14,7 +14,7 @@ class CeleryAbstractInterface:
     Subclasses must define:
     - BACKEND_KEY: The settings key to look for (e.g., "tasks_backend")
     - DEFAULT_BACKEND: The default backend class path if not configured
-    
+
     Backend classes should define:
     - BACKEND_DESCRIPTION: Short description of backend capabilities
     - DATA_SOURCE: Where the backend retrieves its data from
@@ -66,7 +66,7 @@ class CeleryAbstractInterface:
     def get_backend_info(self):
         """
         Get information about the currently configured backend.
-        
+
         Returns:
             dict: Backend metadata including name, module, full path, description, and data source
         """
@@ -74,6 +74,10 @@ class CeleryAbstractInterface:
             "name": self.backend.__class__.__name__,
             "module": self.backend.__class__.__module__,
             "full_path": f"{self.backend.__class__.__module__}.{self.backend.__class__.__name__}",
-            "description": getattr(self.backend.__class__, "BACKEND_DESCRIPTION", "No description available"),
+            "description": getattr(
+                self.backend.__class__,
+                "BACKEND_DESCRIPTION",
+                "No description available",
+            ),
             "data_source": getattr(self.backend.__class__, "DATA_SOURCE", "Unknown"),
         }

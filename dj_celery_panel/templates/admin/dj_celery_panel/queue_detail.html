@@ -4,10 +4,9 @@
 {% block content %}
 {% include "admin/dj_celery_panel/_tabs.html" %}
 
-<div class="celery-tab-content">
-    {% include "admin/dj_celery_panel/_backend_info.html" %}
-    
-    {% if queue %}
+{% include "admin/dj_celery_panel/_backend_info.html" %}
+
+{% if queue %}
     <div class="module">
         <h2>{% trans 'Queue Details' %}</h2>
         
@@ -141,7 +140,7 @@
             <a href="{% url 'dj_celery_panel:queues' %}" class="button default">{% trans 'Back to Queues' %}</a>
         </div>
     </div>
-    {% else %}
+{% else %}
     <div class="module">
         <div class="empty-state-row">
             <div class="empty-state-message">
@@ -154,6 +153,5 @@
             </div>
         </div>
     </div>
-    {% endif %}
-</div>
+{% endif %}
 {% endblock %}

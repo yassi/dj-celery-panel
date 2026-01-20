@@ -44,7 +44,7 @@ class CeleryWorkersInterface(CeleryAbstractInterface):
 
 class CeleryWorkersInspectBackend:
     """Backend for retrieving worker information from Celery inspect API."""
-    
+
     BACKEND_DESCRIPTION = "Real-time worker status and statistics"
     DATA_SOURCE = "Celery Inspect API"
 
@@ -141,20 +141,36 @@ class CeleryWorkersInspectBackend:
                 "scheduled_tasks_count": len(scheduled_tasks),
                 # Task details (formatted as pretty JSON)
                 "active_tasks": active_tasks,
-                "active_tasks_json": json.dumps(active_tasks, indent=2, default=str) if active_tasks else None,
+                "active_tasks_json": json.dumps(active_tasks, indent=2, default=str)
+                if active_tasks
+                else None,
                 "reserved_tasks": reserved_tasks,
-                "reserved_tasks_json": json.dumps(reserved_tasks, indent=2, default=str) if reserved_tasks else None,
+                "reserved_tasks_json": json.dumps(reserved_tasks, indent=2, default=str)
+                if reserved_tasks
+                else None,
                 "scheduled_tasks": scheduled_tasks,
-                "scheduled_tasks_json": json.dumps(scheduled_tasks, indent=2, default=str) if scheduled_tasks else None,
+                "scheduled_tasks_json": json.dumps(
+                    scheduled_tasks, indent=2, default=str
+                )
+                if scheduled_tasks
+                else None,
                 "registered_tasks": registered_tasks,
                 "active_queues": active_queues,
                 # System information (formatted as pretty JSON)
                 "clock": stats.get("clock", "N/A"),
                 "rusage": stats.get("rusage", {}),
-                "rusage_json": json.dumps(stats.get("rusage", {}), indent=2, default=str) if stats.get("rusage") else None,
+                "rusage_json": json.dumps(
+                    stats.get("rusage", {}), indent=2, default=str
+                )
+                if stats.get("rusage")
+                else None,
                 # Broker information (formatted as pretty JSON)
                 "broker": stats.get("broker", {}),
-                "broker_json": json.dumps(stats.get("broker", {}), indent=2, default=str) if stats.get("broker") else None,
+                "broker_json": json.dumps(
+                    stats.get("broker", {}), indent=2, default=str
+                )
+                if stats.get("broker")
+                else None,
             }
 
             # Calculate total tasks executed (sum of all task counts)
