@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dj-celery-panel"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Django Admin panel for browsing and inspecting Celery tasks and workers"
 readme = "README.md"
 license = {text = "MIT"}
@@ -66,7 +66,7 @@ include-package-data = true
 exclude = ["tests*", "example_project*"]
 
 [tool.setuptools.package-data]
-"dj_celery_panel" = ["templates/**/*"]
+"dj_celery_panel" = ["templates/**/*", "static/**/*"]
 
 # pytest configuration
 [tool.pytest.ini_options]
