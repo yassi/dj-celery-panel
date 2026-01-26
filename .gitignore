@@ -214,3 +214,5 @@ cache_files/
 .DS_Store
 celerybeat-schedule*
 celerybeat.pid
+
+staticfiles/

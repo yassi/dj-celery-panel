@@ -5,9 +5,7 @@
 
 {% block extrahead %}
 {{ block.super }}
-<style type="text/css">
-    {% include "admin/dj_celery_panel/styles.css" %}
-</style>
+<link rel="stylesheet" href="{% static 'dj_celery_panel/css/styles.css' %}">
 {% endblock %}
 
 {% block branding %}
