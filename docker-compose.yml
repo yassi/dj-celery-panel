@@ -41,19 +41,19 @@ services:
     <<: *dev
     tty: false
     ports: []
-    command: celery -A example_project worker -n email-worker -l info
+    command: celery -A example_project worker -n email-worker -Q email -l info
 
   heavy_worker:
     <<: *dev
     tty: false
     ports: []
-    command: celery -A example_project worker -n heavy-worker -l info
+    command: celery -A example_project worker -n heavy-worker -Q heavy -l info
 
   periodic_worker:
     <<: *dev
     tty: false
     ports: []
-    command: celery -A example_project worker -n periodic-worker -l info
+    command: celery -A example_project worker -n periodic-worker -Q periodic -l info
 
   beat:
     <<: *dev
