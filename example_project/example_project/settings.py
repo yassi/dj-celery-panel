@@ -171,6 +171,8 @@ CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/0")
 
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 3600,
+    # Enable priority queues for Redis
+    "queue_order_strategy": "priority",
 }
 
 # Store task results in Django database
@@ -212,7 +214,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 CELERY_QUEUES = {
-    "default": {
+    "celery": {
         "exchange": "default",
         "exchange_type": "direct",
         "routing_key": "default",
