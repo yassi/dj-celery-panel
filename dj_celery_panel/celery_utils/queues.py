@@ -86,8 +86,40 @@ class CeleryQueuesInspectBackend:
                     # Format is typically "celery" for default queue or the queue name
                     queue_key = queue_name
 
-                    # Try to get the length
+                    # Get the base queue length
                     length = r.llen(queue_key)
+
+                    # Check if priority queues are enabled
+                    # When using queue_order_strategy="priority", Celery creates
+                    # multiple internal priority queues with keys like: queue_name + sep + priority
+                    # We need to sum up all priority sub-queues
+                    try:
+                        conn = self.app.connection()
+                        channel = conn.default_channel
+
+                        # Check if priority queues are being used
+                        if (
+                            hasattr(channel, "queue_order_strategy")
+                            and channel.queue_order_strategy == "priority"
+                        ):
+                            # Get the separator and priority steps from the channel
+                            # These can be customized in broker_transport_options
+                            sep = getattr(channel, "sep", "\x06\x16")
+                            priority_steps = getattr(
+                                channel, "priority_steps", [0, 3, 6, 9]
+                            )
+
+                            # Sum up lengths from all priority sub-queues
+                            for priority in priority_steps:
+                                priority_queue_key = f"{queue_key}{sep}{priority}"
+                                length += r.llen(priority_queue_key)
+
+                        conn.release()
+                    except Exception:
+                        # If we can't check for priority queues, just use the base length
+                        # This ensures backward compatibility
+                        pass
+
                     result["length"] = length
 
                 except ImportError:
