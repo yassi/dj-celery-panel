@@ -55,6 +55,9 @@ DJ_CELERY_PANEL_SETTINGS = {
     
     # Backend class for queues interface
     "queues_backend": "dj_celery_panel.celery_utils.CeleryQueuesInspectBackend",
+    
+    # Backend class for periodic tasks interface
+    "periodic_tasks_backend": "dj_celery_panel.celery_utils.CeleryPeriodicTasksConfigBackend",
 }
 ```
 
@@ -141,6 +144,73 @@ Uses Celery's inspect API to fetch queue information from running workers.
 **Requirements:**
 - At least one running Celery worker
 - Workers consuming from the queues
+
+#### Periodic Tasks Backends
+
+**`CeleryPeriodicTasksConfigBackend`** (Default)
+
+Reads periodic tasks from the `CELERY_BEAT_SCHEDULE` configuration setting.
+
+**Features:**
+- Display scheduled tasks from beat configuration
+- Show task schedules (crontab, interval, etc.)
+- Display task arguments and keyword arguments
+- No additional dependencies required
+
+**Requirements:**
+- `CELERY_BEAT_SCHEDULE` defined in settings
+
+**Configuration Example:**
+```python
+# settings.py
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-daily-report': {
+        'task': 'app.tasks.send_daily_report',
+        'schedule': crontab(hour=0, minute=0),
+    },
+    'cleanup-old-data': {
+        'task': 'app.tasks.cleanup_old_data',
+        'schedule': crontab(hour=3, minute=0, day_of_week=1),  # Every Monday at 3am
+    },
+}
+
+DJ_CELERY_PANEL_SETTINGS = {
+    "periodic_tasks_backend": "dj_celery_panel.celery_utils.CeleryPeriodicTasksConfigBackend",
+}
+```
+
+**`CeleryPeriodicTasksDjangoCeleryBeatBackend`**
+
+Reads periodic tasks from the django-celery-beat database. This is the solution for [issue #8](https://github.com/yassi/dj-celery-panel/issues/8).
+
+**Features:**
+- Display scheduled tasks from database
+- Show task schedules (interval, crontab, solar, clocked)
+- Display task arguments and keyword arguments
+- Show task execution history (last run, total runs)
+- Dynamic task management via Django admin
+
+**Requirements:**
+- `django-celery-beat` installed and configured
+- Database tables created via migrations
+
+**Configuration Example:**
+```python
+# settings.py
+INSTALLED_APPS = [
+    # ...
+    'django_celery_beat',
+    'dj_celery_panel',
+]
+
+DJ_CELERY_PANEL_SETTINGS = {
+    "periodic_tasks_backend": "dj_celery_panel.celery_utils.CeleryPeriodicTasksDjangoCeleryBeatBackend",
+}
+```
+
+**Note:** If you use django-celery-beat, you should configure this backend to see your database-scheduled tasks. Otherwise, the periodic tasks widget will show 0 tasks even if you have tasks configured in the database.
 
 ### Backend Information Display
 
