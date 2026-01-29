@@ -85,12 +85,10 @@ class TestQueueDetailPage(CeleryPanelTestCase):
 class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
     """Test cases for priority queue message counting with Redis broker."""
 
-    @patch('redis.from_url')
-    def test_redis_priority_queue_message_count(self, mock_redis_from_url):
+    def test_redis_priority_queue_message_count(self):
         """Test that message counts include all priority sub-queues when queue_order_strategy is priority."""
         # Setup mock Redis client
         mock_redis_client = MagicMock()
-        mock_redis_from_url.return_value = mock_redis_client
         
         # Simulate priority queues: base queue is empty, but priority sub-queues have messages
         queue_name = "test_queue"
@@ -116,14 +114,26 @@ class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
         mock_app = Mock()
         mock_app.conf.get.return_value = "redis://localhost:6379/0"
         
-        # Mock connection and channel with priority queue settings
-        mock_conn = Mock()
+        # Mock transport to identify as Redis
+        mock_transport = Mock()
+        mock_transport.__class__.__name__ = "RedisTransport"
+        
+        # Mock channel with Redis client and priority queue settings
         mock_channel = Mock()
+        mock_channel.client = mock_redis_client
         mock_channel.queue_order_strategy = "priority"
         mock_channel.sep = sep
         mock_channel.priority_steps = [0, 3, 6, 9]
+        
+        # Mock connection
+        mock_conn = Mock()
+        mock_conn.transport = mock_transport
+        mock_conn.channel.return_value = mock_channel
         mock_conn.default_channel = mock_channel
-        mock_app.connection.return_value = mock_conn
+        mock_conn.__enter__ = Mock(return_value=mock_conn)
+        mock_conn.__exit__ = Mock(return_value=False)
+        
+        mock_app.connection_or_acquire.return_value = mock_conn
         
         # Test the backend method
         backend = CeleryQueuesInspectBackend(mock_app)
@@ -144,12 +154,10 @@ class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
         actual_calls = [call[0][0] for call in mock_redis_client.llen.call_args_list]
         self.assertEqual(actual_calls, expected_calls)
 
-    @patch('redis.from_url')
-    def test_redis_without_priority_queues(self, mock_redis_from_url):
+    def test_redis_without_priority_queues(self):
         """Test that message counts work normally when priority queues are not enabled."""
         # Setup mock Redis client
         mock_redis_client = MagicMock()
-        mock_redis_from_url.return_value = mock_redis_client
         
         queue_name = "test_queue"
         
@@ -160,12 +168,24 @@ class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
         mock_app = Mock()
         mock_app.conf.get.return_value = "redis://localhost:6379/0"
         
-        # Mock connection without priority queue settings
-        mock_conn = Mock()
+        # Mock transport to identify as Redis
+        mock_transport = Mock()
+        mock_transport.__class__.__name__ = "RedisTransport"
+        
+        # Mock channel without priority queue settings
         mock_channel = Mock()
+        mock_channel.client = mock_redis_client
         mock_channel.queue_order_strategy = "fifo"  # Not priority
+        
+        # Mock connection
+        mock_conn = Mock()
+        mock_conn.transport = mock_transport
+        mock_conn.channel.return_value = mock_channel
         mock_conn.default_channel = mock_channel
-        mock_app.connection.return_value = mock_conn
+        mock_conn.__enter__ = Mock(return_value=mock_conn)
+        mock_conn.__exit__ = Mock(return_value=False)
+        
+        mock_app.connection_or_acquire.return_value = mock_conn
         
         # Test the backend method
         backend = CeleryQueuesInspectBackend(mock_app)
@@ -178,12 +198,10 @@ class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
         # Verify Redis was only called for the base queue
         mock_redis_client.llen.assert_called_once_with(queue_name)
 
-    @patch('redis.from_url')
-    def test_redis_priority_queues_with_custom_steps(self, mock_redis_from_url):
+    def test_redis_priority_queues_with_custom_steps(self):
         """Test that custom priority steps are respected."""
         # Setup mock Redis client
         mock_redis_client = MagicMock()
-        mock_redis_from_url.return_value = mock_redis_client
         
         queue_name = "test_queue"
         custom_sep = '||'
@@ -207,13 +225,26 @@ class TestPriorityQueueMessageCounting(CeleryPanelTestCase):
         mock_app = Mock()
         mock_app.conf.get.return_value = "redis://localhost:6379/0"
         
-        mock_conn = Mock()
+        # Mock transport to identify as Redis
+        mock_transport = Mock()
+        mock_transport.__class__.__name__ = "RedisTransport"
+        
+        # Mock channel with custom priority settings
         mock_channel = Mock()
+        mock_channel.client = mock_redis_client
         mock_channel.queue_order_strategy = "priority"
         mock_channel.sep = custom_sep
         mock_channel.priority_steps = custom_steps
+        
+        # Mock connection
+        mock_conn = Mock()
+        mock_conn.transport = mock_transport
+        mock_conn.channel.return_value = mock_channel
         mock_conn.default_channel = mock_channel
-        mock_app.connection.return_value = mock_conn
+        mock_conn.__enter__ = Mock(return_value=mock_conn)
+        mock_conn.__exit__ = Mock(return_value=False)
+        
+        mock_app.connection_or_acquire.return_value = mock_conn
         
         # Test the backend method
         backend = CeleryQueuesInspectBackend(mock_app)

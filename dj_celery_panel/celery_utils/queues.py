@@ -66,95 +66,94 @@ class CeleryQueuesInspectBackend:
 
     def _get_queue_length_from_broker(self, queue_name: str) -> dict:
         """
-        Get queue length by querying the broker directly.
+        Get queue length by querying the broker directly using Celery's connection API.
         Returns dict with 'length' (int or None) and 'error' (str or None).
         """
         result = {"length": None, "error": None}
 
         try:
-            broker_url = self.app.conf.get("broker_url", "")
+            # Use Celery's connection API instead of manually parsing broker URLs
+            # This is more backend-agnostic and handles all broker URL variations
+            with self.app.connection_or_acquire() as conn:
+                # Get the underlying client/transport
+                transport = conn.transport
+                transport_cls_name = transport.__class__.__name__
 
-            # Redis broker
-            if broker_url.startswith("redis://"):
-                try:
-                    import redis
-
-                    # Parse Redis connection info
-                    r = redis.from_url(broker_url)
-
-                    # Default queue key format in Celery with Redis
-                    # Format is typically "celery" for default queue or the queue name
-                    queue_key = queue_name
-
-                    # Get the base queue length
-                    length = r.llen(queue_key)
-
-                    # Check if priority queues are enabled
-                    # When using queue_order_strategy="priority", Celery creates
-                    # multiple internal priority queues with keys like: queue_name + sep + priority
-                    # We need to sum up all priority sub-queues
+                # Check if this is a Redis-based broker
+                if "redis" in transport_cls_name.lower():
                     try:
-                        conn = self.app.connection()
-                        channel = conn.default_channel
+                        # Get the Redis client from Celery's connection
+                        client = conn.channel().client
 
-                        # Check if priority queues are being used
-                        if (
-                            hasattr(channel, "queue_order_strategy")
-                            and channel.queue_order_strategy == "priority"
-                        ):
-                            # Get the separator and priority steps from the channel
-                            # These can be customized in broker_transport_options
-                            sep = getattr(channel, "sep", "\x06\x16")
-                            priority_steps = getattr(
-                                channel, "priority_steps", [0, 3, 6, 9]
-                            )
+                        # Default queue key format in Celery with Redis
+                        # Format is typically "celery" for default queue or the queue name
+                        queue_key = queue_name
 
-                            # Sum up lengths from all priority sub-queues
-                            for priority in priority_steps:
-                                priority_queue_key = f"{queue_key}{sep}{priority}"
-                                length += r.llen(priority_queue_key)
+                        # Get the base queue length
+                        length = client.llen(queue_key)
 
-                        conn.release()
-                    except Exception:
-                        # If we can't check for priority queues, just use the base length
-                        # This ensures backward compatibility
-                        pass
+                        # Check if priority queues are enabled
+                        # When using queue_order_strategy="priority", Celery creates
+                        # multiple internal priority queues with keys like: queue_name + sep + priority
+                        # We need to sum up all priority sub-queues
+                        try:
+                            channel = conn.default_channel
 
-                    result["length"] = length
+                            # Check if priority queues are being used
+                            if (
+                                hasattr(channel, "queue_order_strategy")
+                                and channel.queue_order_strategy == "priority"
+                            ):
+                                # Get the separator and priority steps from the channel
+                                # These can be customized in broker_transport_options
+                                sep = getattr(channel, "sep", "\x06\x16")
+                                priority_steps = getattr(
+                                    channel, "priority_steps", [0, 3, 6, 9]
+                                )
 
-                except ImportError:
-                    result["error"] = "redis library not installed"
-                except Exception as e:
-                    result["error"] = f"Redis error: {str(e)}"
+                                # Sum up lengths from all priority sub-queues
+                                for priority in priority_steps:
+                                    priority_queue_key = f"{queue_key}{sep}{priority}"
+                                    length += client.llen(priority_queue_key)
 
-            # RabbitMQ broker
-            elif broker_url.startswith("amqp://") or broker_url.startswith("pyamqp://"):
-                try:
-                    import amqp
+                        except Exception:
+                            # If we can't check for priority queues, just use the base length
+                            # This ensures backward compatibility
+                            pass
 
-                    # Parse connection info from broker URL
-                    conn = amqp.Connection(broker_url)
-                    conn.connect()
+                        result["length"] = length
 
-                    channel = conn.channel()
+                    except ImportError:
+                        result["error"] = "redis library not installed"
+                    except Exception as e:
+                        result["error"] = f"Redis error: {str(e)}"
 
-                    # Passive declare to get queue info without creating it
-                    # Returns (queue_name, message_count, consumer_count)
-                    name, message_count, consumer_count = channel.queue_declare(
-                        queue=queue_name, passive=True
+                # Check if this is an AMQP-based broker (RabbitMQ, etc.)
+                elif (
+                    "amqp" in transport_cls_name.lower()
+                    or "pyamqp" in transport_cls_name.lower()
+                ):
+                    try:
+                        # Use Celery's connection to get a channel
+                        channel = conn.channel()
+
+                        # Passive declare to get queue info without creating it
+                        # Returns (queue_name, message_count, consumer_count)
+                        name, message_count, consumer_count = channel.queue_declare(
+                            queue=queue_name, passive=True
+                        )
+
+                        result["length"] = message_count
+                        result["consumer_count"] = consumer_count
+
+                    except ImportError:
+                        result["error"] = "amqp library not installed"
+                    except Exception as e:
+                        result["error"] = f"AMQP error: {str(e)}"
+                else:
+                    result["error"] = (
+                        f"Unsupported broker type for queue length inspection: {transport_cls_name}"
                     )
-
-                    result["length"] = message_count
-                    result["consumer_count"] = consumer_count
-
-                    conn.close()
-
-                except ImportError:
-                    result["error"] = "amqp library not installed"
-                except Exception as e:
-                    result["error"] = f"RabbitMQ error: {str(e)}"
-            else:
-                result["error"] = "Unsupported broker type for queue length inspection"
 
         except Exception as e:
             result["error"] = f"Error querying broker: {str(e)}"
