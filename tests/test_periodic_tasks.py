@@ -150,9 +150,12 @@ class TestPeriodicTasksDjangoCeleryBeatBackend(TestCase):
         self.assertEqual(result.periodic_tasks_count, 2)
         self.assertIsNone(result.error)
 
-        # Check first task (interval)
-        periodic_task1 = result.periodic_tasks[0]
-        self.assertEqual(periodic_task1["name"], "db-task-1")
+        # Find tasks by name (order is not guaranteed)
+        tasks_by_name = {task["name"]: task for task in result.periodic_tasks}
+        
+        # Check interval task
+        self.assertIn("db-task-1", tasks_by_name)
+        periodic_task1 = tasks_by_name["db-task-1"]
         self.assertEqual(periodic_task1["task"], "app.tasks.db_task")
         self.assertEqual(periodic_task1["args"], [1, 2])
         self.assertEqual(periodic_task1["kwargs"], {"key": "value"})
@@ -160,9 +163,9 @@ class TestPeriodicTasksDjangoCeleryBeatBackend(TestCase):
         self.assertEqual(periodic_task1["total_run_count"], 5)
         self.assertTrue(periodic_task1["enabled"])
 
-        # Check second task (crontab)
-        periodic_task2 = result.periodic_tasks[1]
-        self.assertEqual(periodic_task2["name"], "db-task-2")
+        # Check crontab task
+        self.assertIn("db-task-2", tasks_by_name)
+        periodic_task2 = tasks_by_name["db-task-2"]
         self.assertEqual(periodic_task2["task"], "app.tasks.another_db_task")
         self.assertEqual(periodic_task2["args"], [])
         self.assertEqual(periodic_task2["kwargs"], {})
