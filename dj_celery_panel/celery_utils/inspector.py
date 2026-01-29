@@ -47,16 +47,29 @@ class CeleryInspector:
             config_info["broker_url"] = broker_url
 
             if broker_url:
-                if broker_url.startswith("redis://"):
+                # Check for Redis broker (redis://, rediss://, redis+socket://)
+                if broker_url.startswith(("redis://", "rediss://", "redis+socket://")):
                     config_info["broker_type"] = "Redis"
-                elif broker_url.startswith("amqp://") or broker_url.startswith(
-                    "pyamqp://"
+                # Check for AMQP brokers (amqp://, amqps://, pyamqp://, librabbitmq://)
+                elif broker_url.startswith(
+                    ("amqp://", "amqps://", "pyamqp://", "librabbitmq://")
                 ):
-                    config_info["broker_type"] = "RabbitMQ"
-                elif broker_url.startswith("sqs://"):
+                    config_info["broker_type"] = "RabbitMQ (AMQP)"
+                # Check for Amazon SQS (sqs://, sqss://)
+                elif broker_url.startswith(("sqs://", "sqss://")):
                     config_info["broker_type"] = "Amazon SQS"
+                # Check for MongoDB (mongodb://)
                 elif broker_url.startswith("mongodb://"):
                     config_info["broker_type"] = "MongoDB"
+                # Check for Kafka (kafka://)
+                elif broker_url.startswith("kafka://"):
+                    config_info["broker_type"] = "Apache Kafka"
+                # Check for Azure Service Bus (azureservicebus://)
+                elif broker_url.startswith("azureservicebus://"):
+                    config_info["broker_type"] = "Azure Service Bus"
+                # Check for memory/testing broker (memory://)
+                elif broker_url.startswith("memory://"):
+                    config_info["broker_type"] = "In-Memory"
                 else:
                     config_info["broker_type"] = "Other"
 
@@ -65,14 +78,35 @@ class CeleryInspector:
             config_info["result_backend"] = result_backend
 
             if result_backend:
-                if result_backend.startswith("redis://"):
+                # Check for Redis backend (redis://, rediss://, redis+socket://)
+                if result_backend.startswith(
+                    ("redis://", "rediss://", "redis+socket://")
+                ):
                     config_info["result_backend_type"] = "Redis"
-                elif result_backend.startswith("db+") or result_backend == "django-db":
+                # Check for database backends (db+, django-db, django-cache)
+                elif result_backend.startswith("db+") or result_backend in (
+                    "django-db",
+                    "django-cache",
+                ):
                     config_info["result_backend_type"] = "Database"
+                # Check for MongoDB (mongodb://)
                 elif result_backend.startswith("mongodb://"):
                     config_info["result_backend_type"] = "MongoDB"
+                # Check for cache backends (cache+)
                 elif result_backend.startswith("cache+"):
                     config_info["result_backend_type"] = "Cache"
+                # Check for RPC backend (rpc://)
+                elif result_backend.startswith("rpc://"):
+                    config_info["result_backend_type"] = "RPC"
+                # Check for S3 backend (s3://)
+                elif result_backend.startswith("s3://"):
+                    config_info["result_backend_type"] = "Amazon S3"
+                # Check for filesystem backend (file://)
+                elif result_backend.startswith("file://"):
+                    config_info["result_backend_type"] = "Filesystem"
+                # Check for disabled backend
+                elif result_backend in ("disabled", "rpc"):
+                    config_info["result_backend_type"] = "Disabled"
                 else:
                     config_info["result_backend_type"] = "Other"
 
@@ -336,4 +370,3 @@ class CeleryInspector:
 
     def get_task_status(self):
         pass
-
