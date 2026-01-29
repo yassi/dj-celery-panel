@@ -1,6 +1,7 @@
 # core dependencies
 Django>=4.2
 django-celery-results>=2.4.0
+django-celery-beat>=2.8.1
 celery>=5.4.0
 flower>=2.0.1
 redis>=4.0
