@@ -79,8 +79,18 @@ class CeleryQueuesInspectBackend:
                 transport = conn.transport
                 transport_cls_name = transport.__class__.__name__
 
+                # Get the driver name for more robust detection
+                # The driver_name attribute is more reliable than class name
+                driver_name = getattr(transport, "driver_name", "").lower()
+                driver_type = getattr(transport, "driver_type", "").lower()
+
+                # Combine all detection methods for robust broker identification
+                transport_info = (
+                    f"{transport_cls_name.lower()} {driver_name} {driver_type}"
+                )
+
                 # Check if this is a Redis-based broker
-                if "redis" in transport_cls_name.lower():
+                if "redis" in transport_info:
                     try:
                         # Get the Redis client from Celery's connection
                         client = conn.channel().client
@@ -130,8 +140,9 @@ class CeleryQueuesInspectBackend:
 
                 # Check if this is an AMQP-based broker (RabbitMQ, etc.)
                 elif (
-                    "amqp" in transport_cls_name.lower()
-                    or "pyamqp" in transport_cls_name.lower()
+                    "amqp" in transport_info
+                    or "pyamqp" in transport_info
+                    or "librabbitmq" in transport_info
                 ):
                     try:
                         # Use Celery's connection to get a channel
@@ -151,8 +162,11 @@ class CeleryQueuesInspectBackend:
                     except Exception as e:
                         result["error"] = f"AMQP error: {str(e)}"
                 else:
+                    # Provide detailed error with all transport information for debugging
                     result["error"] = (
-                        f"Unsupported broker type for queue length inspection: {transport_cls_name}"
+                        f"Unsupported broker type for queue length inspection: "
+                        f"class={transport_cls_name}, driver={driver_name or 'N/A'}, "
+                        f"type={driver_type or 'N/A'}"
                     )
 
         except Exception as e:
