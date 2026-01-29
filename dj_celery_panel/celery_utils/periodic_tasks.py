@@ -19,9 +19,7 @@ class CeleryPeriodicTasksInterface(CeleryAbstractInterface):
     """
 
     BACKEND_KEY = "periodic_tasks_backend"
-    DEFAULT_BACKEND = (
-        "dj_celery_panel.celery_utils.CeleryPeriodicTasksConfigBackend"
-    )
+    DEFAULT_BACKEND = "dj_celery_panel.celery_utils.CeleryPeriodicTasksConfigBackend"
 
     def get_periodic_tasks(self) -> PeriodicTaskListPage:
         """Get a list of all periodic tasks."""
@@ -93,7 +91,7 @@ class CeleryPeriodicTasksDjangoCeleryBeatBackend:
 
             # Query all enabled periodic tasks
             for task in PeriodicTask.objects.filter(enabled=True).select_related(
-                "interval", "crontab", "solar"
+                "interval", "crontab", "solar", "clocked"
             ):
                 # Determine the schedule string based on which schedule type is set
                 schedule_str = "N/A"

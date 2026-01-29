@@ -81,9 +81,7 @@ Django Celery Panel is built with a **pluggable backend architecture** that allo
 #### Example: Custom Backend
 
 ```python
-from dj_celery_panel.celery_utils import CeleryAbstractInterface
-
-class CustomTasksBackend(CeleryAbstractInterface):
+class CustomTasksBackend:
     """Custom backend that fetches tasks from your own API."""
     
     def get_tasks(self, search_query=None, page=1, per_page=50):

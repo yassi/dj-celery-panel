@@ -241,9 +241,7 @@ Out of the box, Django Celery Panel uses:
 Need something different? Implement your own backend:
 
 ```python
-from dj_celery_panel.celery_utils import CeleryAbstractInterface
-
-class CustomTasksBackend(CeleryAbstractInterface):
+class CustomTasksBackend:
     # Backend metadata - displayed in the UI
     BACKEND_DESCRIPTION = "Data from custom monitoring"
     DATA_SOURCE = "Custom API"
