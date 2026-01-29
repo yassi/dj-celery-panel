@@ -73,6 +73,11 @@ Django Celery Panel is built with a **pluggable backend architecture** that allo
 - `CeleryQueuesInspectBackend` - Queue information via Celery's inspect API (default)
 - Custom: Could implement queue monitoring via broker-specific APIs
 
+**Periodic Tasks Backends:**
+- `CeleryPeriodicTasksConfigBackend` - Reads from CELERY_BEAT_SCHEDULE configuration (default)
+- `CeleryPeriodicTasksDjangoCeleryBeatBackend` - Reads from django-celery-beat database
+- Custom: Could implement schedule management via custom schedulers
+
 #### Example: Custom Backend
 
 ```python

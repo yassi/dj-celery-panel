@@ -5,6 +5,7 @@ from celery import current_app
 
 from .celery_utils import (
     CeleryInspector,
+    CeleryPeriodicTasksInterface,
     CeleryQueuesInterface,
     CeleryTasksInterface,
     CeleryWorkersInterface,
@@ -25,8 +26,16 @@ def index(request):
     # Get registered tasks (local operation)
     registered_tasks = inspector.get_registered_tasks(exclude_internal=True)
 
-    # Get periodic tasks from beat schedule
-    periodic_tasks = inspector.get_periodic_tasks()
+    # Get periodic tasks using the interface
+    periodic_tasks_interface = CeleryPeriodicTasksInterface(current_app)
+    periodic_tasks_result = periodic_tasks_interface.get_periodic_tasks()
+
+    # Use Django's messaging framework for errors
+    if periodic_tasks_result.error:
+        messages.warning(request, periodic_tasks_result.error)
+
+    # Get backend info for periodic tasks
+    periodic_backend_info = periodic_tasks_interface.get_backend_info()
 
     context = admin.site.each_context(request)
     context.update(
@@ -36,8 +45,9 @@ def index(request):
             "config": config,
             "registered_tasks": registered_tasks,
             "registered_tasks_count": len(registered_tasks),
-            "periodic_tasks": periodic_tasks,
-            "periodic_tasks_count": len(periodic_tasks),
+            "periodic_tasks": periodic_tasks_result.periodic_tasks,
+            "periodic_tasks_count": periodic_tasks_result.periodic_tasks_count,
+            "periodic_backend_info": periodic_backend_info,
         }
     )
     return render(request, "admin/dj_celery_panel/index.html", context)

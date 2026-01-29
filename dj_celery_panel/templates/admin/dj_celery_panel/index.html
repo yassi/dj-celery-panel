@@ -82,6 +82,7 @@
     <!-- Periodic Tasks Section -->
     <div id="periodic-section" class="module">
         <h2>{% trans 'Periodic Tasks Schedule' %}</h2>
+        {% include "admin/dj_celery_panel/_backend_info.html" with backend_info=periodic_backend_info %}
         {% if periodic_tasks %}
         <div class="results">
             <table id="result_list">

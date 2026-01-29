@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_results",
+    "django_celery_beat",
     "dj_redis_panel",
     "dj_cache_panel",
     "dj_celery_panel",
@@ -246,6 +247,9 @@ DJ_CELERY_PANEL_SETTINGS = {
     "tasks_backend": "dj_celery_panel.celery_utils.CeleryTasksDjangoCeleryResultsBackend",
     "workers_backend": "dj_celery_panel.celery_utils.CeleryWorkersInspectBackend",
     "queues_backend": "dj_celery_panel.celery_utils.CeleryQueuesInspectBackend",
+    # Periodic tasks backend options:
+    # "periodic_tasks_backend": "dj_celery_panel.celery_utils.CeleryPeriodicTasksConfigBackend",  # Default - reads from CELERY_BEAT_SCHEDULE
+    # "periodic_tasks_backend": "dj_celery_panel.celery_utils.CeleryPeriodicTasksDjangoCeleryBeatBackend",  # Reads from django-celery-beat database
 }
 
 
