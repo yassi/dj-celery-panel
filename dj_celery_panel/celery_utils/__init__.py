@@ -7,6 +7,12 @@ in different ways (inspect API, result backends, event monitors, etc.).
 
 from .base import CeleryAbstractInterface
 from .inspector import CeleryInspector
+from .periodic_tasks import (
+    CeleryPeriodicTasksConfigBackend,
+    CeleryPeriodicTasksDjangoCeleryBeatBackend,
+    CeleryPeriodicTasksInterface,
+    PeriodicTaskListPage,
+)
 from .queues import (
     CeleryQueuesInspectBackend,
     CeleryQueuesInterface,
@@ -48,4 +54,9 @@ __all__ = [
     "CeleryQueuesInspectBackend",
     "QueueListPage",
     "QueueDetailPage",
+    # Periodic Tasks
+    "CeleryPeriodicTasksInterface",
+    "CeleryPeriodicTasksConfigBackend",
+    "CeleryPeriodicTasksDjangoCeleryBeatBackend",
+    "PeriodicTaskListPage",
 ]
