@@ -31,4 +31,9 @@
 {% endblock %}
 
 {% block content %}
+<div>
+    {% include "admin/dj_celery_panel/_tabs.html" %}
+    {% block tab_content %}
+    {% endblock %}
+</div>
 {% endblock %}
