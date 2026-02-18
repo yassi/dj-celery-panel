@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dj-celery-panel"
-version = "0.3.3"
+version = "0.3.4"
 description = "A Django Admin panel for browsing and inspecting Celery tasks and workers"
 readme = "README.md"
 license = {text = "MIT"}
