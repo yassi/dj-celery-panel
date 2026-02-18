@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://yassi.github.io/dj-celery-panel/</loc>
+         <lastmod>2026-02-18</lastmod>
+    </url>
+    <url>
+         <loc>https://yassi.github.io/dj-celery-panel/configuration/</loc>
+         <lastmod>2026-02-18</lastmod>
+    </url>
+    <url>
+         <loc>https://yassi.github.io/dj-celery-panel/development/</loc>
+         <lastmod>2026-02-18</lastmod>
+    </url>
+    <url>
+         <loc>https://yassi.github.io/dj-celery-panel/features/</loc>
+         <lastmod>2026-02-18</lastmod>
+    </url>
+    <url>
+         <loc>https://yassi.github.io/dj-celery-panel/installation/</loc>
+         <lastmod>2026-02-18</lastmod>
+    </url>
+</urlset>
