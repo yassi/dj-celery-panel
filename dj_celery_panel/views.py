@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib import admin, messages
 from celery import current_app
 
+from .conf import get_css_context
 from .celery_utils import (
     CeleryInspector,
     CeleryPeriodicTasksInterface,
@@ -38,6 +39,7 @@ def index(request):
     periodic_backend_info = periodic_tasks_interface.get_backend_info()
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": "Django Celery Panel - Overview",
@@ -84,6 +86,7 @@ def workers(request):
     }
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": "Django Celery Panel - Active Workers",
@@ -149,6 +152,7 @@ def tasks(request):
     show_filters = len(task_filters) > 1
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": "Django Celery Panel - Tasks",
@@ -190,6 +194,7 @@ def queues(request):
     backend_info = queue_interface.get_backend_info()
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": "Django Celery Panel - Queues",
@@ -218,6 +223,7 @@ def queue_detail(request, queue_name):
     backend_info = queue_interface.get_backend_info()
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": f"Django Celery Panel - Queue {queue_name}",
@@ -247,6 +253,7 @@ def task_detail(request, task_id):
     backend_info = task_interface.get_backend_info()
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": f"Django Celery Panel - Task {task_id[:8]}...",
@@ -275,6 +282,7 @@ def worker_detail(request, worker_id):
     backend_info = worker_interface.get_backend_info()
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": f"Django Celery Panel - Worker {worker_id}",
@@ -301,6 +309,7 @@ def configuration(request):
     panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
 
     context = admin.site.each_context(request)
+    context.update(get_css_context())
     context.update(
         {
             "title": "Django Celery Panel - Configuration",
