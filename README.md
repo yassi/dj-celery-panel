@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/dj-celery-panel.svg)](https://badge.fury.io/py/dj-celery-panel)
 [![Python versions](https://img.shields.io/pypi/pyversions/dj-celery-panel.svg)](https://pypi.org/project/dj-celery-panel/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://img.shields.io/pypi/dm/dj-celery-panel.svg)](https://pypi.org/project/dj-celery-panel/)
 
 
 
