@@ -4,9 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/dj-celery-panel.svg)](https://pypi.org/project/dj-celery-panel/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/pypi/dm/dj-celery-panel.svg)](https://pypi.org/project/dj-celery-panel/)
-
-
-
+[![Django Control Room Panel](https://img.shields.io/badge/Django%20Control%20Room-Panel-0c4b33?logo=django)](https://github.com/yassi/dj-control-room)
 
 # Django Celery Panel
 
