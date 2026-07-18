@@ -6,7 +6,7 @@
 
 Django Celery Panel is a Django admin extension that provides a web interface for monitoring and inspecting your Celery tasks and workers.
 
-![Task Management](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/tasks.png)
+![Task Management](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/tasks.png)
 
 ### Features
 
@@ -34,7 +34,7 @@ Django Celery Panel is a Django admin extension that provides a web interface fo
 
 Get a comprehensive overview of your entire Celery infrastructure at a glance.
 
-![Dashboard Overview](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/overview.png)
+![Dashboard Overview](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/overview.png)
 
 The dashboard provides:
 - Summary of active workers
@@ -46,7 +46,7 @@ The dashboard provides:
 
 Monitor all active Celery workers in your infrastructure with detailed information.
 
-![Workers Monitoring](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/workers.png)
+![Workers Monitoring](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/workers.png)
 
 Worker monitoring includes:
 - Worker name and hostname
@@ -60,7 +60,7 @@ Worker monitoring includes:
 
 Browse and inspect your Celery task history with complete details.
 
-![Task Management](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/tasks.png)
+![Task Management](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/tasks.png)
 
 Task management features:
 - Task name and ID
@@ -75,7 +75,7 @@ Task management features:
 
 View your current Celery configuration and runtime settings.
 
-![Configuration](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/config.png)
+![Configuration](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/config.png)
 
 Configuration display includes:
 - Broker URL and settings
@@ -103,4 +103,4 @@ Configuration display includes:
 
 ## License
 
-MIT License - See [LICENSE](https://github.com/yassi/dj-celery-panel/blob/main/LICENSE) file for details.
+MIT License - See [LICENSE](https://github.com/django-control-room/dj-celery-panel/blob/main/LICENSE) file for details.

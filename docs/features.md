@@ -4,7 +4,7 @@ Django Celery Panel provides a comprehensive monitoring and inspection interface
 
 ## Overview
 
-![Dashboard Overview](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/overview.png)
+![Dashboard Overview](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/overview.png)
 
 The **Overview** page provides a comprehensive dashboard of your entire Celery infrastructure at a glance. This is the landing page when you access Django Celery Panel.
 
@@ -23,7 +23,7 @@ The overview page is designed for fast loading with minimal API calls, giving yo
 
 ## Workers Monitoring
 
-![Workers Monitoring](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/workers.png)
+![Workers Monitoring](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/workers.png)
 
 The **Workers** page provides real-time monitoring of all active Celery workers in your infrastructure.
 
@@ -56,7 +56,7 @@ This real-time data comes directly from Celery's inspect API, giving you an accu
 
 ## Task Management
 
-![Task Management](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/tasks.png)
+![Task Management](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/tasks.png)
 
 The **Tasks** page provides comprehensive task history and inspection capabilities.
 
@@ -123,7 +123,7 @@ This information helps you understand your task routing configuration and ensure
 
 ## Configuration View
 
-![Configuration](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/config.png)
+![Configuration](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/config.png)
 
 The **Configuration** page displays your Celery runtime configuration and Django Celery Panel settings.
 
@@ -196,7 +196,7 @@ This gives you visibility into your automated background tasks and when they're 
 
 ## Admin Integration
 
-![Admin Integration](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/admin_home.png)
+![Admin Integration](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/admin_home.png)
 
 Django Celery Panel integrates seamlessly into your Django admin interface.
 

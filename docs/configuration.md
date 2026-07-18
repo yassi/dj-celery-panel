@@ -211,7 +211,7 @@ DJ_CELERY_PANEL_SETTINGS = {
 
 **`CeleryPeriodicTasksDjangoCeleryBeatBackend`**
 
-Reads periodic tasks from the django-celery-beat database. This is the solution for [issue #8](https://github.com/yassi/dj-celery-panel/issues/8).
+Reads periodic tasks from the django-celery-beat database. This is the solution for [issue #8](https://github.com/django-control-room/dj-celery-panel/issues/8).
 
 **Features:**
 - Display scheduled tasks from database

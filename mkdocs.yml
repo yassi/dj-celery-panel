@@ -1,10 +1,10 @@
 site_name: Django Celery Panel
 site_description: A Django Admin panel for browsing, inspecting, and managing Celery tasks and workers
 site_author: Yasser Toruno
-site_url: https://yassi.github.io/dj-celery-panel/
+site_url: https://django-control-room.github.io/dj-celery-panel/
 
-repo_name: yassi/dj-celery-panel
-repo_url: https://github.com/yassi/dj-celery-panel
+repo_name: django-control-room/dj-celery-panel
+repo_url: https://github.com/django-control-room/dj-celery-panel
 
 theme:
   name: material

@@ -1,5 +1,5 @@
-[![Tests](https://github.com/yassi/dj-celery-panel/actions/workflows/test.yml/badge.svg)](https://github.com/yassi/dj-celery-panel/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/yassi/dj-celery-panel/branch/main/graph/badge.svg)](https://codecov.io/gh/yassi/dj-celery-panel)
+[![Tests](https://github.com/django-control-room/dj-celery-panel/actions/workflows/test.yml/badge.svg)](https://github.com/django-control-room/dj-celery-panel/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/django-control-room/dj-celery-panel/branch/main/graph/badge.svg)](https://codecov.io/gh/django-control-room/dj-celery-panel)
 [![PyPI version](https://badge.fury.io/py/dj-celery-panel.svg)](https://badge.fury.io/py/dj-celery-panel)
 [![Python versions](https://img.shields.io/pypi/pyversions/dj-celery-panel.svg)](https://pypi.org/project/dj-celery-panel/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -10,11 +10,11 @@
 
  DJ Celery Panel brings Celery monitoring directly into Django Admin. No separate services to deploy, no extra infrastructure to maintain — just add it to INSTALLED_APPS and you're done.
 
-![DJ Celery Panel](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/django-celery.png)
+![DJ Celery Panel](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/django-celery.png)
 
 ## Docs
 
-[https://yassi.github.io/dj-celery-panel/](https://yassi.github.io/dj-celery-panel/)
+[https://django-control-room.github.io/dj-celery-panel/](https://django-control-room.github.io/dj-celery-panel/)
 
 ## Features
 
@@ -109,31 +109,31 @@ will appear in the same places where your models appear.
 
 **NOTE:** This application does not actually introduce any model or migrations.
 
-![Admin Home](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/admin_home.png)
+![Admin Home](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/admin_home.png)
 
 ### Dashboard Overview
 
 Get a quick overview of your Celery infrastructure including active workers, recent tasks, and queue status.
 
-![Dashboard Overview](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/overview.png)
+![Dashboard Overview](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/overview.png)
 
 ### Workers Monitoring
 
 View all active Celery workers with detailed information about their status, pool type, concurrency, and processing capabilities.
 
-![Workers](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/workers.png)
+![Workers](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/workers.png)
 
 ### Task Management
 
 Browse and inspect your Celery tasks with complete details including status, arguments, results, and execution time.
 
-![Tasks](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/tasks.png)
+![Tasks](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/tasks.png)
 
 ### Configuration
 
 View your Celery configuration including broker settings, result backend, and other runtime parameters.
 
-![Configuration](https://raw.githubusercontent.com/yassi/dj-celery-panel/main/images/config.png)
+![Configuration](https://raw.githubusercontent.com/django-control-room/dj-celery-panel/main/images/config.png)
 
 
 ## Installation
@@ -257,7 +257,7 @@ Docker is recommended since it automates the setup of all required services incl
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yassi/dj-celery-panel.git
+git clone https://github.com/django-control-room/dj-celery-panel.git
 cd dj-celery-panel
 ```
 
