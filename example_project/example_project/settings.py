@@ -41,9 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    "dj_control_room_base",
     "dj_redis_panel",
     "dj_cache_panel",
     "dj_celery_panel",
+    "dj_control_room",
     "example_project",  # For management commands
     "app",  # Example app with test tasks
 ]
