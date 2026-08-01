@@ -1,9 +1,8 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
-from django.contrib import admin, messages
+from django.contrib import messages
 from celery import current_app
 
-from .conf import get_css_context
+from .conf import panel_config
 from .celery_utils import (
     CeleryInspector,
     CeleryPeriodicTasksInterface,
@@ -13,7 +12,7 @@ from .celery_utils import (
 )
 
 
-@staff_member_required
+@panel_config.permission_required("overview")
 def index(request):
     """
     Display Celery panel overview with static configuration information.
@@ -38,24 +37,21 @@ def index(request):
     # Get backend info for periodic tasks
     periodic_backend_info = periodic_tasks_interface.get_backend_info()
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": "Django Celery Panel - Overview",
-            "current_tab": "overview",
-            "config": config,
-            "registered_tasks": registered_tasks,
-            "registered_tasks_count": len(registered_tasks),
-            "periodic_tasks": periodic_tasks_result.periodic_tasks,
-            "periodic_tasks_count": periodic_tasks_result.periodic_tasks_count,
-            "periodic_backend_info": periodic_backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title="Django Celery Panel - Overview",
+        current_tab="overview",
+        config=config,
+        registered_tasks=registered_tasks,
+        registered_tasks_count=len(registered_tasks),
+        periodic_tasks=periodic_tasks_result.periodic_tasks,
+        periodic_tasks_count=periodic_tasks_result.periodic_tasks_count,
+        periodic_backend_info=periodic_backend_info,
     )
     return render(request, "admin/dj_celery_panel/index.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("workers")
 def workers(request):
     """
     Display active Celery workers with real-time inspection data.
@@ -85,20 +81,17 @@ def workers(request):
         "config": config,
     }
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": "Django Celery Panel - Active Workers",
-            "celery_status": celery_status,
-            "current_tab": "workers",
-            "backend_info": backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title="Django Celery Panel - Active Workers",
+        celery_status=celery_status,
+        current_tab="workers",
+        backend_info=backend_info,
     )
     return render(request, "admin/dj_celery_panel/workers.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("tasks")
 def tasks(request):
     """
     Display task execution history with pagination and search.
@@ -151,32 +144,29 @@ def tasks(request):
     # Show filters only if there are multiple options to choose from
     show_filters = len(task_filters) > 1
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": "Django Celery Panel - Tasks",
-            "current_tab": "tasks",
-            "tasks": task_data.tasks,
-            "total_count": task_data.total_count,
-            "page": task_data.page,
-            "per_page": task_data.per_page,
-            "total_pages": task_data.total_pages,
-            "has_previous": task_data.has_previous,
-            "has_next": task_data.has_next,
-            "previous_page": task_data.previous_page,
-            "next_page": task_data.next_page,
-            "search_query": search_query,
-            "backend_info": backend_info,
-            "show_filters": show_filters,
-            "task_filters": task_filters,
-            "current_filter": filter_type,
-        }
+    context = panel_config.get_context(
+        request,
+        title="Django Celery Panel - Tasks",
+        current_tab="tasks",
+        tasks=task_data.tasks,
+        total_count=task_data.total_count,
+        page=task_data.page,
+        per_page=task_data.per_page,
+        total_pages=task_data.total_pages,
+        has_previous=task_data.has_previous,
+        has_next=task_data.has_next,
+        previous_page=task_data.previous_page,
+        next_page=task_data.next_page,
+        search_query=search_query,
+        backend_info=backend_info,
+        show_filters=show_filters,
+        task_filters=task_filters,
+        current_filter=filter_type,
     )
     return render(request, "admin/dj_celery_panel/tasks.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("queues")
 def queues(request):
     """
     Display Celery queues information from active workers.
@@ -193,20 +183,17 @@ def queues(request):
     # Get backend info
     backend_info = queue_interface.get_backend_info()
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": "Django Celery Panel - Queues",
-            "current_tab": "queues",
-            "queues": queue_result.queues,
-            "backend_info": backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title="Django Celery Panel - Queues",
+        current_tab="queues",
+        queues=queue_result.queues,
+        backend_info=backend_info,
     )
     return render(request, "admin/dj_celery_panel/queues.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("queue_detail")
 def queue_detail(request, queue_name):
     """
     Display detailed information about a specific queue.
@@ -222,21 +209,18 @@ def queue_detail(request, queue_name):
     # Get backend info
     backend_info = queue_interface.get_backend_info()
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": f"Django Celery Panel - Queue {queue_name}",
-            "current_tab": "queues",
-            "queue": result.queue,
-            "queue_name": queue_name,
-            "backend_info": backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title=f"Django Celery Panel - Queue {queue_name}",
+        current_tab="queues",
+        queue=result.queue,
+        queue_name=queue_name,
+        backend_info=backend_info,
     )
     return render(request, "admin/dj_celery_panel/queue_detail.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("task_detail")
 def task_detail(request, task_id):
     """
     Display detailed information about a specific task instance.
@@ -252,20 +236,17 @@ def task_detail(request, task_id):
     # Get backend info
     backend_info = task_interface.get_backend_info()
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": f"Django Celery Panel - Task {task_id[:8]}...",
-            "current_tab": "tasks",
-            "task": result.task,
-            "backend_info": backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title=f"Django Celery Panel - Task {task_id[:8]}...",
+        current_tab="tasks",
+        task=result.task,
+        backend_info=backend_info,
     )
     return render(request, "admin/dj_celery_panel/task_detail.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("worker_detail")
 def worker_detail(request, worker_id):
     """
     Display detailed information about a specific worker.
@@ -281,21 +262,18 @@ def worker_detail(request, worker_id):
     # Get backend info
     backend_info = worker_interface.get_backend_info()
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": f"Django Celery Panel - Worker {worker_id}",
-            "current_tab": "workers",
-            "worker": result.worker,
-            "worker_id": worker_id,
-            "backend_info": backend_info,
-        }
+    context = panel_config.get_context(
+        request,
+        title=f"Django Celery Panel - Worker {worker_id}",
+        current_tab="workers",
+        worker=result.worker,
+        worker_id=worker_id,
+        backend_info=backend_info,
     )
     return render(request, "admin/dj_celery_panel/worker_detail.html", context)
 
 
-@staff_member_required
+@panel_config.permission_required("configuration")
 def configuration(request):
     """
     Display Celery configuration and DJ Celery Panel settings.
@@ -308,14 +286,11 @@ def configuration(request):
     # Get DJ Celery Panel settings
     panel_settings = getattr(settings, "DJ_CELERY_PANEL_SETTINGS", {})
 
-    context = admin.site.each_context(request)
-    context.update(get_css_context())
-    context.update(
-        {
-            "title": "Django Celery Panel - Configuration",
-            "config": config,
-            "panel_settings": panel_settings,
-            "current_tab": "configuration",
-        }
+    context = panel_config.get_context(
+        request,
+        title="Django Celery Panel - Configuration",
+        config=config,
+        panel_settings=panel_settings,
+        current_tab="configuration",
     )
     return render(request, "admin/dj_celery_panel/configuration.html", context)
