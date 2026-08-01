@@ -41,4 +41,10 @@ def pytest_configure(config):
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "example_project.settings")
 
     if not settings.configured:
+        import example_project.settings as project_settings
+
+        project_settings.INSTALLED_APPS = [
+            app for app in project_settings.INSTALLED_APPS if app != "dj_control_room"
+        ]
+
         django.setup()
