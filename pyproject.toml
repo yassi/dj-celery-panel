@@ -36,6 +36,7 @@ classifiers = [
 keywords = ["django", "celery", "admin", "panel", "tasks", "django-celery"]
 dependencies = [
     "Django>=4.2",
+    "dj-control-room-base>=1.4.0",
 ]
 
 [project.entry-points."dj_control_room.panels"]
