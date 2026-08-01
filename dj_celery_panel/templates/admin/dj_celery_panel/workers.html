@@ -1,51 +1,74 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
+
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "chart" %}
+    </div>
+    <div class="dcr-page-header__body">
+      <h1 class="dcr-page-header__title">{% trans "Active Workers" %}</h1>
+      <p class="dcr-page-header__subtitle">
+        {% trans "Real-time view of Celery workers currently processing tasks." %}
+      </p>
+    </div>
+  </div>
+</div>
 
 {% include "admin/dj_celery_panel/_backend_info.html" %}
 
-<div class="module">
-    <h2>{% trans 'Active Workers' %}</h2>
-    <div class="results">
-        <table id="result_list">
-            <thead>
-                <tr>
-                    <th scope="col">{% trans 'Worker Name' %}</th>
-                    <th scope="col">{% trans 'Status' %}</th>
-                    <th scope="col">{% trans 'Pool' %}</th>
-                    <th scope="col">{% trans 'Concurrency' %}</th>
-                    <th scope="col">{% trans 'Prefetch Count' %}</th>
-                    <th scope="col">{% trans 'Tasks Executed' %}</th>
-                    <th scope="col">{% trans 'PID' %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if celery_status.workers_detail %}
-                    {% for worker in celery_status.workers_detail %}
-                    <tr>
-                        <td><a href="{% url 'dj_celery_panel:worker_detail' worker.name %}"><code class="worker-name">{{ worker.name }}</code></a></td>
-                        <td><span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span></td>
-                        <td>{{ worker.pool }}</td>
-                        <td>{{ worker.concurrency }}</td>
-                        <td>{{ worker.prefetch_count }}</td>
-                        <td>{{ worker.total_tasks_executed }}</td>
-                        <td>{{ worker.pid }}</td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr class="empty-state-row">
-                        <td colspan="7" class="empty-state-message">
-                            <div class="empty-state-content">
-                                <span class="empty-state-icon">⚠️</span>
-                                <p class="empty-state-title">{% trans 'No Workers Running' %}</p>
-                                <p class="empty-state-text">{% trans 'Start a Celery worker to process tasks.' %}</p>
-                            </div>
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
+<div class="dcr-data-table">
+  <div class="dcr-data-table__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{% trans "Worker Name" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Pool" %}</th>
+          <th class="dcr-col--right">{% trans "Concurrency" %}</th>
+          <th class="dcr-col--right">{% trans "Prefetch Count" %}</th>
+          <th class="dcr-col--right">{% trans "Tasks Executed" %}</th>
+          <th class="dcr-col--right">{% trans "PID" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if celery_status.workers_detail %}
+        {% for worker in celery_status.workers_detail %}
+        <tr>
+          <td>
+            <a href="{% url 'dj_celery_panel:worker_detail' worker.name %}" class="dcr-data-table__link">
+              <code class="dcr-code">{{ worker.name }}</code>
+            </a>
+          </td>
+          <td>
+            {% if worker.status == "online" %}
+            <span class="dcr-pill dcr-pill--success"><span class="dcr-pill__dot"></span>{{ worker.status|capfirst }}</span>
+            {% else %}
+            <span class="dcr-pill dcr-pill--danger"><span class="dcr-pill__dot"></span>{{ worker.status|capfirst }}</span>
+            {% endif %}
+          </td>
+          <td>{{ worker.pool }}</td>
+          <td class="dcr-col--right">{{ worker.concurrency }}</td>
+          <td class="dcr-col--right">{{ worker.prefetch_count }}</td>
+          <td class="dcr-col--right">{{ worker.total_tasks_executed }}</td>
+          <td class="dcr-col--right">{{ worker.pid }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="7">
+            <div class="dcr-empty">
+              <h2 class="dcr-empty__title">{% trans "No Workers Running" %}</h2>
+              <p class="dcr-empty__body">{% trans "Start a Celery worker to process tasks." %}</p>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
 {% endblock %}

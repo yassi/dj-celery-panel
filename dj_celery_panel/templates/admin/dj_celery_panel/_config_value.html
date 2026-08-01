@@ -10,17 +10,19 @@ Parameters:
 - suffix: (optional) Suffix to append to the value (e.g., "s" for seconds)
 - help_text: (optional) Explanation text to show below the value
 {% endcomment %}
-<li>
-    <strong>{{ label }}</strong> 
+<div class="dcr-dl__row">
+  <dt class="dcr-dl__label">{{ label }}</dt>
+  <dd class="dcr-dl__value">
     {% if value %}
-        {{ value }}{% if suffix %}{{ suffix }}{% endif %}
-        {% if code %}
-        <code class="config-url-code">{{ code }}</code>
-        {% endif %}
+      {{ value }}{% if suffix %}{{ suffix }}{% endif %}
+      {% if code %}
+      <code class="dcr-code dcr-ml-sm">{{ code }}</code>
+      {% endif %}
     {% else %}
-        <span class="config-value-muted">{% if fallback %}{{ fallback }}{% else %}{% trans 'Not configured' %}{% endif %}</span>
+      <span class="dcr-text-muted">{% if fallback %}{{ fallback }}{% else %}{% trans 'Not configured' %}{% endif %}</span>
     {% endif %}
     {% if help_text %}
-    <div class="config-help-text">{{ help_text }}</div>
+    <p class="dcr-dl__secondary">{{ help_text }}</p>
     {% endif %}
-</li>
+  </dd>
+</div>

@@ -1,99 +1,95 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
 
-<div class="celery-tab-content">
-        <!-- DJ Celery Panel Settings -->
-        <div class="module">
-            <h2>{% trans 'DJ Celery Panel Settings' %}</h2>
-            
-            <div class="abilities-legend">
-                <h3 class="abilities-legend-title">{% trans 'Backend Configuration' %}</h3>
-                
-                <ul class="abilities-legend-list">
-                    {% if panel_settings.tasks_backend %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value=panel_settings.tasks_backend help_text=_("Backend class used for retrieving task lists and task details.") %}
-                    {% else %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value="" fallback=_("CeleryTasksDjangoCeleryResultsBackend (default)") help_text=_("Backend class used for retrieving task lists and task details.") %}
-                    {% endif %}
-                    
-                    {% if panel_settings.workers_backend %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value=panel_settings.workers_backend help_text=_("Backend class used for retrieving worker information.") %}
-                    {% else %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value="" fallback=_("CeleryWorkersInspectBackend (default)") help_text=_("Backend class used for retrieving worker information.") %}
-                    {% endif %}
-                    
-                    {% if panel_settings.queues_backend %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queues Backend:") value=panel_settings.queues_backend help_text=_("Backend class used for retrieving queue information.") %}
-                    {% else %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queues Backend:") value="" fallback=_("CeleryQueuesInspectBackend (default)") help_text=_("Backend class used for retrieving queue information.") %}
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-
-        <!-- Celery Settings -->
-        {% if config %}
-        <div class="module">
-            <h2>{% trans 'Celery Settings' %}</h2>
-            
-            <div class="abilities-legend">
-                <h3 class="abilities-legend-title">{% trans 'Configuration Information' %}</h3>
-                
-                <h4 class="config-section-title">{% trans 'Connection & Serialization' %}</h4>
-                <ul class="abilities-legend-list">
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Broker:") value=config.broker_type help_text=_("The message broker that Celery uses to send and receive task messages (e.g., Redis, RabbitMQ, SQS).") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Backend:") value=config.result_backend_type help_text=_("Where Celery stores task results and states for later retrieval.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Timezone:") value=config.timezone fallback=_("UTC (default)") help_text=_("The timezone used for scheduling tasks and storing timestamps.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Serializer:") value=config.task_serializer fallback=_("json (default)") help_text=_("The serialization format used for task messages sent to the broker.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Serializer:") value=config.result_serializer fallback=_("json (default)") help_text=_("The serialization format used for task results stored in the result backend.") %}
-                    {% if config.accept_content %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value=config.accept_content|join:", " fallback=_("json (default)") help_text=_("The content types that workers will accept for task messages (security setting).") %}
-                    {% else %}
-                        {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value="" fallback=_("json (default)") help_text=_("The content types that workers will accept for task messages (security setting).") %}
-                    {% endif %}
-                </ul>
-                
-                <h4 class="config-section-title">{% trans 'Task Execution' %}</h4>
-                <ul class="abilities-legend-list">
-                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Task Acks Late:") value=config.task_acks_late help_text=_("When enabled, tasks are acknowledged after execution. This prevents task loss if a worker crashes during execution.") %}
-                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Track Started:") value=config.task_track_started help_text=_("When enabled, workers report a STARTED state when tasks begin executing, allowing you to distinguish between pending and running tasks.") %}
-                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Ignore Result:") value=config.task_ignore_result help_text=_("When enabled, task results are not stored in the result backend, saving resources for tasks that don't need to return values.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Time Limit:") value=config.task_time_limit suffix="s" fallback=_("None (unlimited)") help_text=_("Hard time limit in seconds. Tasks exceeding this limit are terminated with SIGKILL.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Soft Time Limit:") value=config.task_soft_time_limit suffix="s" fallback=_("None") help_text=_("Soft time limit in seconds. Tasks exceeding this limit receive a SoftTimeLimitExceeded exception, allowing graceful cleanup.") %}
-                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Always Eager:") value=config.task_always_eager warning=True warning_text="Testing Mode" help_text=_("When enabled, tasks execute immediately and synchronously instead of being sent to the broker. Use only for testing!") %}
-                </ul>
-                
-                <h4 class="config-section-title">{% trans 'Queue & Routing' %}</h4>
-                <ul class="abilities-legend-list">
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Queue:") value=config.default_queue fallback=_("celery (default)") help_text=_("The default queue where tasks are sent when no specific queue is specified.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Exchange:") value=config.default_exchange help_text=_("The default exchange used for task routing in the message broker.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Routing Key:") value=config.default_routing_key help_text=_("The default routing key used when publishing tasks to the exchange.") %}
-                    {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Create Missing Queues:") value=config.create_missing_queues help_text=_("When enabled, Celery automatically creates queues that don't exist when tasks are sent to them.") %}
-                </ul>
-                
-                <h4 class="config-section-title">{% trans 'Worker Settings' %}</h4>
-                <ul class="abilities-legend-list">
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Prefetch Multiplier:") value=config.worker_prefetch_multiplier fallback=_("4 (default)") help_text=_("Number of tasks each worker process prefetches from the queue. Formula: prefetch = concurrency × multiplier.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Max Tasks Per Child:") value=config.worker_max_tasks_per_child fallback=_("Unlimited") help_text=_("Maximum number of tasks a worker process can execute before being replaced. Helps prevent memory leaks.") %}
-                    {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Expires:") value=config.result_expires fallback=_("1 day (default)") help_text=_("Time in seconds before task results expire and are deleted from the result backend.") %}
-                </ul>
-            </div>
-        </div>
-        {% else %}
-        <div class="module">
-            <h2>{% trans 'Configuration' %}</h2>
-            <div class="empty-state-row">
-                <div class="empty-state-message">
-                    <div class="empty-state-content">
-                        <span class="empty-state-icon">⚙️</span>
-                        <p class="empty-state-title">{% trans 'No Configuration Available' %}</p>
-                        <p class="empty-state-text">{% trans 'Celery configuration could not be retrieved.' %}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "cog" %}
     </div>
+    <div class="dcr-page-header__body">
+      <h1 class="dcr-page-header__title">{% trans "Configuration" %}</h1>
+      <p class="dcr-page-header__subtitle">
+        {% trans "Panel backends and the Celery settings in effect for this project." %}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="dcr-section-header">
+  <h2 class="dcr-section-header__title">{% trans "DJ Celery Panel Settings" %}</h2>
+</div>
+
+<h3 class="dcr-text-sm dcr-font-semibold dcr-mt-md">{% trans "Backend Configuration" %}</h3>
+<dl class="dcr-dl">
+  {% if panel_settings.tasks_backend %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value=panel_settings.tasks_backend help_text=_("Backend class used for retrieving task lists and task details.") %}
+  {% else %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Tasks Backend:") value="" fallback=_("CeleryTasksDjangoCeleryResultsBackend (default)") help_text=_("Backend class used for retrieving task lists and task details.") %}
+  {% endif %}
+
+  {% if panel_settings.workers_backend %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value=panel_settings.workers_backend help_text=_("Backend class used for retrieving worker information.") %}
+  {% else %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Workers Backend:") value="" fallback=_("CeleryWorkersInspectBackend (default)") help_text=_("Backend class used for retrieving worker information.") %}
+  {% endif %}
+
+  {% if panel_settings.queues_backend %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queues Backend:") value=panel_settings.queues_backend help_text=_("Backend class used for retrieving queue information.") %}
+  {% else %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Queues Backend:") value="" fallback=_("CeleryQueuesInspectBackend (default)") help_text=_("Backend class used for retrieving queue information.") %}
+  {% endif %}
+</dl>
+
+{% if config %}
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Celery Settings" %}</h2>
+</div>
+
+<h3 class="dcr-text-sm dcr-font-semibold dcr-mt-md">{% trans "Connection & Serialization" %}</h3>
+<dl class="dcr-dl">
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Broker:") value=config.broker_type help_text=_("The message broker that Celery uses to send and receive task messages (e.g., Redis, RabbitMQ, SQS).") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Backend:") value=config.result_backend_type help_text=_("Where Celery stores task results and states for later retrieval.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Timezone:") value=config.timezone fallback=_("UTC (default)") help_text=_("The timezone used for scheduling tasks and storing timestamps.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Serializer:") value=config.task_serializer fallback=_("json (default)") help_text=_("The serialization format used for task messages sent to the broker.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Serializer:") value=config.result_serializer fallback=_("json (default)") help_text=_("The serialization format used for task results stored in the result backend.") %}
+  {% if config.accept_content %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value=config.accept_content|join:", " fallback=_("json (default)") help_text=_("The content types that workers will accept for task messages (security setting).") %}
+  {% else %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Accept Content:") value="" fallback=_("json (default)") help_text=_("The content types that workers will accept for task messages (security setting).") %}
+  {% endif %}
+</dl>
+
+<h3 class="dcr-text-sm dcr-font-semibold dcr-mt-md">{% trans "Task Execution" %}</h3>
+<dl class="dcr-dl">
+  {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Task Acks Late:") value=config.task_acks_late help_text=_("When enabled, tasks are acknowledged after execution. This prevents task loss if a worker crashes during execution.") %}
+  {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Track Started:") value=config.task_track_started help_text=_("When enabled, workers report a STARTED state when tasks begin executing, allowing you to distinguish between pending and running tasks.") %}
+  {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Ignore Result:") value=config.task_ignore_result help_text=_("When enabled, task results are not stored in the result backend, saving resources for tasks that don't need to return values.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Time Limit:") value=config.task_time_limit suffix="s" fallback=_("None (unlimited)") help_text=_("Hard time limit in seconds. Tasks exceeding this limit are terminated with SIGKILL.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Task Soft Time Limit:") value=config.task_soft_time_limit suffix="s" fallback=_("None") help_text=_("Soft time limit in seconds. Tasks exceeding this limit receive a SoftTimeLimitExceeded exception, allowing graceful cleanup.") %}
+  {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Always Eager:") value=config.task_always_eager warning=True warning_text="Testing Mode" help_text=_("When enabled, tasks execute immediately and synchronously instead of being sent to the broker. Use only for testing!") %}
+</dl>
+
+<h3 class="dcr-text-sm dcr-font-semibold dcr-mt-md">{% trans "Queue & Routing" %}</h3>
+<dl class="dcr-dl">
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Queue:") value=config.default_queue fallback=_("celery (default)") help_text=_("The default queue where tasks are sent when no specific queue is specified.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Exchange:") value=config.default_exchange help_text=_("The default exchange used for task routing in the message broker.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Default Routing Key:") value=config.default_routing_key help_text=_("The default routing key used when publishing tasks to the exchange.") %}
+  {% include "admin/dj_celery_panel/_config_boolean.html" with label=_("Create Missing Queues:") value=config.create_missing_queues help_text=_("When enabled, Celery automatically creates queues that don't exist when tasks are sent to them.") %}
+</dl>
+
+<h3 class="dcr-text-sm dcr-font-semibold dcr-mt-md">{% trans "Worker Settings" %}</h3>
+<dl class="dcr-dl">
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Prefetch Multiplier:") value=config.worker_prefetch_multiplier fallback=_("4 (default)") help_text=_("Number of tasks each worker process prefetches from the queue. Formula: prefetch = concurrency × multiplier.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Max Tasks Per Child:") value=config.worker_max_tasks_per_child fallback=_("Unlimited") help_text=_("Maximum number of tasks a worker process can execute before being replaced. Helps prevent memory leaks.") %}
+  {% include "admin/dj_celery_panel/_config_value.html" with label=_("Result Expires:") value=config.result_expires fallback=_("1 day (default)") help_text=_("Time in seconds before task results expire and are deleted from the result backend.") %}
+</dl>
+{% else %}
+<div class="dcr-empty">
+  <h2 class="dcr-empty__title">{% trans "No Configuration Available" %}</h2>
+  <p class="dcr-empty__body">{% trans "Celery configuration could not be retrieved." %}</p>
+</div>
+{% endif %}
+
 {% endblock %}

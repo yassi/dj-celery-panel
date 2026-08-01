@@ -1,185 +1,207 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
 
 {% include "admin/dj_celery_panel/_backend_info.html" %}
 
 {% if worker %}
-    <div class="module">
-        <h2>{% trans 'Worker Details' %}</h2>
-        
-        <div class="results">
-            <table id="result_list">
-            <tr>
-                <th>{% trans 'Worker Name' %}</th>
-                <td><code>{{ worker.name }}</code></td>
-            </tr>
-            <tr>
-                <th>{% trans 'Status' %}</th>
-                <td>
-                    <span class="worker-status worker-status-{{ worker.status }}">{{ worker.status|capfirst }}</span>
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Hostname' %}</th>
-                <td>{{ worker.hostname }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Process ID (PID)' %}</th>
-                <td>{{ worker.pid }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Pool Implementation' %}</th>
-                <td>{{ worker.pool }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Concurrency' %}</th>
-                <td>{{ worker.concurrency }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Prefetch Count' %}</th>
-                <td>{{ worker.prefetch_count }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Total Tasks Executed' %}</th>
-                <td>{{ worker.total_tasks_executed }}</td>
-            </tr>
-            <tr>
-                <th>{% trans 'Active Tasks' %}</th>
-                <td>
-                    {% if worker.active_tasks %}
-                        <strong>{{ worker.active_tasks_count }}</strong>
-                        <details style="margin-top: 8px;">
-                            <summary style="cursor: pointer;">{% trans 'Show active tasks' %}</summary>
-                            <pre style="margin-top: 8px;"><code>{{ worker.active_tasks_json }}</code></pre>
-                        </details>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No active tasks' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Reserved Tasks' %}</th>
-                <td>
-                    {% if worker.reserved_tasks %}
-                        <strong>{{ worker.reserved_tasks_count }}</strong>
-                        <details style="margin-top: 8px;">
-                            <summary style="cursor: pointer;">{% trans 'Show reserved tasks' %}</summary>
-                            <pre style="margin-top: 8px;"><code>{{ worker.reserved_tasks_json }}</code></pre>
-                        </details>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No reserved tasks' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Scheduled Tasks' %}</th>
-                <td>
-                    {% if worker.scheduled_tasks %}
-                        <strong>{{ worker.scheduled_tasks_count }}</strong>
-                        <details style="margin-top: 8px;">
-                            <summary style="cursor: pointer;">{% trans 'Show scheduled tasks' %}</summary>
-                            <pre style="margin-top: 8px;"><code>{{ worker.scheduled_tasks_json }}</code></pre>
-                        </details>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No scheduled tasks' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Registered Tasks' %}</th>
-                <td>
-                    {% if worker.registered_tasks %}
-                        <strong>{{ worker.registered_tasks|length }}</strong> {% trans 'tasks' %}
-                        <details style="margin-top: 8px;">
-                            <summary style="cursor: pointer;">{% trans 'Show registered tasks' %}</summary>
-                            <ul style="margin-top: 8px; margin-left: 20px;">
-                                {% for task in worker.registered_tasks %}
-                                    <li><code>{{ task }}</code></li>
-                                {% endfor %}
-                            </ul>
-                        </details>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No registered tasks' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Active Queues' %}</th>
-                <td>
-                    {% if worker.active_queues %}
-                        <ul style="margin-left: 20px;">
-                            {% for queue in worker.active_queues %}
-                                <li>
-                                    <strong>{{ queue.name }}</strong>
-                                    <span class="config-value-muted">
-                                        (Exchange: {{ queue.exchange.name }}, Routing Key: {{ queue.routing_key }})
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No active queues' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% if worker.processes %}
-            <tr>
-                <th>{% trans 'Worker Processes' %}</th>
-                <td>
-                    <details>
-                        <summary style="cursor: pointer;">{% trans 'Show process list' %} ({{ worker.processes|length }})</summary>
-                        <ul style="margin-top: 8px; margin-left: 20px;">
-                            {% for pid in worker.processes %}
-                                <li>PID: {{ pid }}</li>
-                            {% endfor %}
-                        </ul>
-                    </details>
-                </td>
-            </tr>
-            {% endif %}
-            {% if worker.rusage_json %}
-            <tr>
-                <th>{% trans 'Resource Usage' %}</th>
-                <td>
-                    <details>
-                        <summary style="cursor: pointer;">{% trans 'Show resource usage' %}</summary>
-                        <pre style="margin-top: 8px;"><code>{{ worker.rusage_json }}</code></pre>
-                    </details>
-                </td>
-            </tr>
-            {% endif %}
-            {% if worker.broker_json %}
-            <tr>
-                <th>{% trans 'Broker Info' %}</th>
-                <td>
-                    <details>
-                        <summary style="cursor: pointer;">{% trans 'Show broker information' %}</summary>
-                        <pre style="margin-top: 8px;"><code>{{ worker.broker_json }}</code></pre>
-                    </details>
-                </td>
-            </tr>
-            {% endif %}
-            </table>
-        </div>
 
-        <div class="task-detail-actions">
-            <a href="{% url 'dj_celery_panel:workers' %}" class="button default">{% trans 'Back to Workers' %}</a>
-        </div>
+<a href="{% url 'dj_celery_panel:workers' %}" class="dcr-back-link">{% trans "Back to Workers" %}</a>
+
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "chart" %}
     </div>
+    <div class="dcr-page-header__body">
+      <div class="dcr-page-header__title-row">
+        <h1 class="dcr-page-header__title dcr-font-mono">{{ worker.name }}</h1>
+        {% if worker.status == "online" %}
+        <span class="dcr-pill dcr-pill--success"><span class="dcr-pill__dot"></span>{{ worker.status|capfirst }}</span>
+        {% else %}
+        <span class="dcr-pill dcr-pill--danger"><span class="dcr-pill__dot"></span>{{ worker.status|capfirst }}</span>
+        {% endif %}
+      </div>
+      <p class="dcr-page-header__subtitle">{{ worker.hostname }}</p>
+    </div>
+  </div>
+</div>
+
+<dl class="dcr-dl">
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Process ID (PID)" %}</dt>
+    <dd class="dcr-dl__value">{{ worker.pid }}</dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Pool Implementation" %}</dt>
+    <dd class="dcr-dl__value">{{ worker.pool }}</dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Concurrency" %}</dt>
+    <dd class="dcr-dl__value">{{ worker.concurrency }}</dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Prefetch Count" %}</dt>
+    <dd class="dcr-dl__value">{{ worker.prefetch_count }}</dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Total Tasks Executed" %}</dt>
+    <dd class="dcr-dl__value">{{ worker.total_tasks_executed }}</dd>
+  </div>
+</dl>
+
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Task State" %}</h2>
+</div>
+
+<dl class="dcr-dl">
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Active Tasks" %}</dt>
+    <dd class="dcr-dl__value">
+      {% if worker.active_tasks %}
+      <strong>{{ worker.active_tasks_count }}</strong>
+      <details class="dcr-mt-sm">
+        <summary>{% trans "Show active tasks" %}</summary>
+        <div class="dcr-code-viewer dcr-mt-sm">
+          <pre class="dcr-code-viewer__body"><code class="language-json">{{ worker.active_tasks_json }}</code></pre>
+        </div>
+      </details>
+      {% else %}
+      <span class="dcr-text-muted">{% trans "No active tasks" %}</span>
+      {% endif %}
+    </dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Reserved Tasks" %}</dt>
+    <dd class="dcr-dl__value">
+      {% if worker.reserved_tasks %}
+      <strong>{{ worker.reserved_tasks_count }}</strong>
+      <details class="dcr-mt-sm">
+        <summary>{% trans "Show reserved tasks" %}</summary>
+        <div class="dcr-code-viewer dcr-mt-sm">
+          <pre class="dcr-code-viewer__body"><code class="language-json">{{ worker.reserved_tasks_json }}</code></pre>
+        </div>
+      </details>
+      {% else %}
+      <span class="dcr-text-muted">{% trans "No reserved tasks" %}</span>
+      {% endif %}
+    </dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Scheduled Tasks" %}</dt>
+    <dd class="dcr-dl__value">
+      {% if worker.scheduled_tasks %}
+      <strong>{{ worker.scheduled_tasks_count }}</strong>
+      <details class="dcr-mt-sm">
+        <summary>{% trans "Show scheduled tasks" %}</summary>
+        <div class="dcr-code-viewer dcr-mt-sm">
+          <pre class="dcr-code-viewer__body"><code class="language-json">{{ worker.scheduled_tasks_json }}</code></pre>
+        </div>
+      </details>
+      {% else %}
+      <span class="dcr-text-muted">{% trans "No scheduled tasks" %}</span>
+      {% endif %}
+    </dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Registered Tasks" %}</dt>
+    <dd class="dcr-dl__value">
+      {% if worker.registered_tasks %}
+      <strong>{{ worker.registered_tasks|length }}</strong> {% trans "tasks" %}
+      <details class="dcr-mt-sm">
+        <summary>{% trans "Show registered tasks" %}</summary>
+        <ul class="dcr-mt-sm">
+          {% for task in worker.registered_tasks %}
+          <li><code class="dcr-code">{{ task }}</code></li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% else %}
+      <span class="dcr-text-muted">{% trans "No registered tasks" %}</span>
+      {% endif %}
+    </dd>
+  </div>
+</dl>
+
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Active Queues" %}</h2>
+</div>
+
+{% if worker.active_queues %}
+<ul>
+  {% for queue in worker.active_queues %}
+  <li>
+    <strong>{{ queue.name }}</strong>
+    <span class="dcr-text-muted dcr-text-sm">
+      ({% trans "Exchange:" %} {{ queue.exchange.name }}, {% trans "Routing Key:" %} {{ queue.routing_key }})
+    </span>
+  </li>
+  {% endfor %}
+</ul>
 {% else %}
-    <div class="module">
-        <div class="empty-state-row">
-            <div class="empty-state-message">
-                <div class="empty-state-content">
-                    <span class="empty-state-icon">⚠️</span>
-                    <p class="empty-state-title">{% trans 'Worker Not Found' %}</p>
-                    <p class="empty-state-text">{% trans 'The requested worker could not be found.' %}</p>
-                    <a href="{% url 'dj_celery_panel:workers' %}" class="button">{% trans 'Back to Workers' %}</a>
-                </div>
-            </div>
+<p class="dcr-text-muted">{% trans "No active queues" %}</p>
+{% endif %}
+
+{% if worker.processes or worker.rusage_json or worker.broker_json %}
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Diagnostics" %}</h2>
+</div>
+
+<dl class="dcr-dl">
+  {% if worker.processes %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Worker Processes" %}</dt>
+    <dd class="dcr-dl__value">
+      <details>
+        <summary>{% trans "Show process list" %} ({{ worker.processes|length }})</summary>
+        <ul class="dcr-mt-sm">
+          {% for pid in worker.processes %}
+          <li>{% trans "PID:" %} {{ pid }}</li>
+          {% endfor %}
+        </ul>
+      </details>
+    </dd>
+  </div>
+  {% endif %}
+  {% if worker.rusage_json %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Resource Usage" %}</dt>
+    <dd class="dcr-dl__value">
+      <details>
+        <summary>{% trans "Show resource usage" %}</summary>
+        <div class="dcr-code-viewer dcr-mt-sm">
+          <pre class="dcr-code-viewer__body"><code class="language-json">{{ worker.rusage_json }}</code></pre>
         </div>
-    </div>
+      </details>
+    </dd>
+  </div>
+  {% endif %}
+  {% if worker.broker_json %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Broker Info" %}</dt>
+    <dd class="dcr-dl__value">
+      <details>
+        <summary>{% trans "Show broker information" %}</summary>
+        <div class="dcr-code-viewer dcr-mt-sm">
+          <pre class="dcr-code-viewer__body"><code class="language-json">{{ worker.broker_json }}</code></pre>
+        </div>
+      </details>
+    </dd>
+  </div>
+  {% endif %}
+</dl>
+{% endif %}
+
+{% else %}
+
+<div class="dcr-empty">
+  <h2 class="dcr-empty__title">{% trans "Worker Not Found" %}</h2>
+  <p class="dcr-empty__body">{% trans "The requested worker could not be found." %}</p>
+  <div class="dcr-empty__links">
+    <a href="{% url 'dj_celery_panel:workers' %}" class="dcr-btn dcr-btn--primary">{% trans "Back to Workers" %}</a>
+  </div>
+</div>
+
 {% endif %}
 {% endblock %}

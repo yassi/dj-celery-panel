@@ -1,141 +1,129 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
 
 {% include "admin/dj_celery_panel/_backend_info.html" %}
 
 {% if task %}
-    <div class="module">
-        <h2>{% trans 'Task Details' %}</h2>
-        
-        <div class="results">
-            <table id="result_list">
-            <tr>
-                <th>{% trans 'Task ID' %}</th>
-                <td><code>{{ task.id }}</code></td>
-            </tr>
-            <tr>
-                <th>{% trans 'Task Name' %}</th>
-                <td>
-                    {% if task.name %}
-                        <code>{{ task.name }}</code>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'Unknown' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Status' %}</th>
-                <td>
-                    {% if task.status == "SUCCESS" %}
-                        <span class="task-status task-status-success">{% trans 'SUCCESS' %}</span>
-                    {% elif task.status == "FAILURE" %}
-                        <span class="task-status task-status-failure">{% trans 'FAILURE' %}</span>
-                    {% elif task.status == "STARTED" or task.status == "ACTIVE" %}
-                        <span class="task-status task-status-active">{% trans 'ACTIVE' %}</span>
-                    {% elif task.status == "PENDING" %}
-                        <span class="task-status task-status-reserved">{% trans 'PENDING' %}</span>
-                    {% elif task.status == "RESERVED" %}
-                        <span class="task-status task-status-reserved">{% trans 'RESERVED' %}</span>
-                    {% elif task.status == "RETRY" %}
-                        <span class="task-status task-status-retry">{% trans 'RETRY' %}</span>
-                    {% elif task.status == "REVOKED" %}
-                        <span class="task-status task-status-revoked">{% trans 'REVOKED' %}</span>
-                    {% else %}
-                        <span class="task-status">{{ task.status }}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Worker' %}</th>
-                <td>
-                    {% if task.worker %}
-                        {{ task.worker }}
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'Unknown' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Created' %}</th>
-                <td>{{ task.date_created|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            {% if task.date_started %}
-            <tr>
-                <th>{% trans 'Started' %}</th>
-                <td>{{ task.date_started|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            {% endif %}
-            {% if task.date_done %}
-            <tr>
-                <th>{% trans 'Completed' %}</th>
-                <td>{{ task.date_done|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            {% endif %}
-            {% if task.duration %}
-            <tr>
-                <th>{% trans 'Duration' %}</th>
-                <td>{{ task.duration|floatformat:3 }} {% trans 'seconds' %}</td>
-            </tr>
-            {% endif %}
-            <tr>
-                <th>{% trans 'Args' %}</th>
-                <td>
-                    {% if task.args %}
-                        <pre><code>{{ task.args }}</code></pre>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No arguments' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Kwargs' %}</th>
-                <td>
-                    {% if task.kwargs %}
-                        <pre><code>{{ task.kwargs }}</code></pre>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No keyword arguments' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>{% trans 'Result' %}</th>
-                <td>
-                    {% if task.result %}
-                        <pre><code>{{ task.result }}</code></pre>
-                    {% else %}
-                        <span class="config-value-muted">{% trans 'No result' %}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% if task.traceback %}
-            <tr>
-                <th>{% trans 'Traceback' %}</th>
-                <td>
-                    <pre class="task-traceback"><code>{{ task.traceback }}</code></pre>
-                </td>
-            </tr>
-            {% endif %}
-            </table>
-        </div>
 
-        <div class="task-detail-actions">
-            <a href="{% url 'dj_celery_panel:tasks' %}" class="button default">{% trans 'Back to Tasks' %}</a>
-        </div>
+<a href="{% url 'dj_celery_panel:tasks' %}" class="dcr-back-link">{% trans "Back to Tasks" %}</a>
+
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "chart" %}
     </div>
+    <div class="dcr-page-header__body">
+      <div class="dcr-page-header__title-row">
+        <h1 class="dcr-page-header__title dcr-font-mono">{{ task.id }}</h1>
+        {% if task.status == "SUCCESS" %}
+        <span class="dcr-badge dcr-badge--success">{% trans "SUCCESS" %}</span>
+        {% elif task.status == "FAILURE" %}
+        <span class="dcr-badge dcr-badge--danger">{% trans "FAILURE" %}</span>
+        {% elif task.status == "STARTED" or task.status == "ACTIVE" %}
+        <span class="dcr-badge dcr-badge--info">{% trans "ACTIVE" %}</span>
+        {% elif task.status == "PENDING" %}
+        <span class="dcr-badge dcr-badge--warning">{% trans "PENDING" %}</span>
+        {% elif task.status == "RESERVED" %}
+        <span class="dcr-badge dcr-badge--warning">{% trans "RESERVED" %}</span>
+        {% elif task.status == "RETRY" %}
+        <span class="dcr-badge dcr-badge--warning">{% trans "RETRY" %}</span>
+        {% elif task.status == "REVOKED" %}
+        <span class="dcr-badge dcr-badge--muted">{% trans "REVOKED" %}</span>
+        {% else %}
+        <span class="dcr-badge dcr-badge--muted">{{ task.status }}</span>
+        {% endif %}
+      </div>
+      <p class="dcr-page-header__subtitle">
+        {% if task.name %}<code class="dcr-code">{{ task.name }}</code>{% else %}<span class="dcr-text-muted">{% trans "Unknown" %}</span>{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+
+<dl class="dcr-dl">
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Worker" %}</dt>
+    <dd class="dcr-dl__value">
+      {% if task.worker %}{{ task.worker }}{% else %}<span class="dcr-text-muted">{% trans "Unknown" %}</span>{% endif %}
+    </dd>
+  </div>
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Created" %}</dt>
+    <dd class="dcr-dl__value">{{ task.date_created|date:"Y-m-d H:i:s" }}</dd>
+  </div>
+  {% if task.date_started %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Started" %}</dt>
+    <dd class="dcr-dl__value">{{ task.date_started|date:"Y-m-d H:i:s" }}</dd>
+  </div>
+  {% endif %}
+  {% if task.date_done %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Completed" %}</dt>
+    <dd class="dcr-dl__value">{{ task.date_done|date:"Y-m-d H:i:s" }}</dd>
+  </div>
+  {% endif %}
+  {% if task.duration %}
+  <div class="dcr-dl__row">
+    <dt class="dcr-dl__label">{% trans "Duration" %}</dt>
+    <dd class="dcr-dl__value">{{ task.duration|floatformat:3 }} {% trans "seconds" %}</dd>
+  </div>
+  {% endif %}
+</dl>
+
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Args" %}</h2>
+</div>
+{% if task.args %}
+<div class="dcr-code-viewer">
+  <pre class="dcr-code-viewer__body"><code class="language-python">{{ task.args }}</code></pre>
+</div>
 {% else %}
-    <div class="module">
-        <div class="empty-state-row">
-            <div class="empty-state-message">
-                <div class="empty-state-content">
-                    <span class="empty-state-icon">⚠️</span>
-                    <p class="empty-state-title">{% trans 'Task Not Found' %}</p>
-                    <p class="empty-state-text">{% trans 'The requested task could not be found.' %}</p>
-                    <a href="{% url 'dj_celery_panel:tasks' %}" class="button">{% trans 'Back to Tasks' %}</a>
-                </div>
-            </div>
-        </div>
-    </div>
+<p class="dcr-text-muted">{% trans "No arguments" %}</p>
+{% endif %}
+
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Kwargs" %}</h2>
+</div>
+{% if task.kwargs %}
+<div class="dcr-code-viewer">
+  <pre class="dcr-code-viewer__body"><code class="language-python">{{ task.kwargs }}</code></pre>
+</div>
+{% else %}
+<p class="dcr-text-muted">{% trans "No keyword arguments" %}</p>
+{% endif %}
+
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Result" %}</h2>
+</div>
+{% if task.result %}
+<div class="dcr-code-viewer">
+  <pre class="dcr-code-viewer__body"><code class="language-python">{{ task.result }}</code></pre>
+</div>
+{% else %}
+<p class="dcr-text-muted">{% trans "No result" %}</p>
+{% endif %}
+
+{% if task.traceback %}
+<div class="dcr-section-header dcr-mt-lg">
+  <h2 class="dcr-section-header__title">{% trans "Traceback" %}</h2>
+</div>
+<div class="dcr-callout dcr-callout--danger">
+  <pre class="dcr-code-viewer__body"><code>{{ task.traceback }}</code></pre>
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="dcr-empty">
+  <h2 class="dcr-empty__title">{% trans "Task Not Found" %}</h2>
+  <p class="dcr-empty__body">{% trans "The requested task could not be found." %}</p>
+  <div class="dcr-empty__links">
+    <a href="{% url 'dj_celery_panel:tasks' %}" class="dcr-btn dcr-btn--primary">{% trans "Back to Tasks" %}</a>
+  </div>
+</div>
+
 {% endif %}
 {% endblock %}

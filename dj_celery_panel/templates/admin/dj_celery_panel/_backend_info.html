@@ -1,9 +1,7 @@
 {% load i18n %}
-
 {% if backend_info %}
-<div class="backend-info">
-    <span class="backend-info-label">Backend:</span> 
-    <code>{{ backend_info.name }}</code> 
-    <span class="backend-info-description">— {{ backend_info.data_source }}</span>
-</div>
+<p class="dcr-text-sm dcr-text-muted dcr-mb-md">
+  {% trans "Backend:" %} <code class="dcr-code">{{ backend_info.name }}</code>
+  — {{ backend_info.data_source }}
+</p>
 {% endif %}
