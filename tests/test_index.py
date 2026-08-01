@@ -63,6 +63,6 @@ class TestIndexPage(CeleryPanelTestCase):
         client = Client()
         client.force_login(user)
         response = client.get(reverse("dj_celery_panel:index"))
-        
-        # Should redirect to admin login
-        self.assertEqual(response.status_code, 302)
+
+        # Authenticated but unauthorized users get a 403, not a login redirect
+        self.assertEqual(response.status_code, 403)
