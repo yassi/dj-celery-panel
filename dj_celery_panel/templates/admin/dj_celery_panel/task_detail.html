@@ -1,6 +1,12 @@
 {% extends "admin/dj_celery_panel/base.html" %}
 {% load i18n static dcr_icons %}
 
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'dj_control_room_base/vendor/highlight-github-dark.min.css' %}">
+<script src="{% static 'dj_control_room_base/vendor/highlight.min.js' %}"></script>
+{% endblock %}
+
 {% block panel_page_content %}
 
 {% include "admin/dj_celery_panel/_backend_info.html" %}
@@ -126,4 +132,14 @@
 </div>
 
 {% endif %}
+{% endblock %}
+
+{% block panel_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre.dcr-code-viewer__body code[class*="language-"]').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+});
+</script>
 {% endblock %}
