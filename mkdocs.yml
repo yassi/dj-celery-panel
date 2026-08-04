@@ -42,6 +42,7 @@ nav:
   - Getting Started:
     - Installation: installation.md
     - Configuration: configuration.md
+    - Scopes: scopes.md
   - Development: development.md
 
 markdown_extensions:
