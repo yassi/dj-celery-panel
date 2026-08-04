@@ -81,9 +81,15 @@
   <div class="dcr-data-table__header">
     <div class="dcr-data-table__header-info">
       <h3 class="dcr-data-table__title">{% trans "Periodic Tasks Schedule" %}</h3>
+      {% if periodic_backend_info %}
+      <p class="dcr-data-table__subtitle">
+        {% trans "Backend:" %}
+        <code class="dcr-code">{{ periodic_backend_info.name }}</code>
+        · {{ periodic_backend_info.data_source }}
+      </p>
+      {% endif %}
     </div>
   </div>
-  {% include "admin/dj_celery_panel/_backend_info.html" with backend_info=periodic_backend_info %}
   <div class="dcr-data-table__scroll">
     <table>
       <thead>
