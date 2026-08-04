@@ -1,3 +1,80 @@
+# (prefix tuple, display label)
+_BROKER_TYPE_PREFIXES = (
+    (("redis://", "rediss://", "redis+socket://"), "Redis"),
+    (("amqp://", "amqps://", "pyamqp://", "librabbitmq://"), "RabbitMQ (AMQP)"),
+    (("sqs://", "sqss://"), "Amazon SQS"),
+    (("mongodb://",), "MongoDB"),
+    (("kafka://",), "Apache Kafka"),
+    (("azureservicebus://",), "Azure Service Bus"),
+    (("memory://",), "In-Memory"),
+)
+
+# Exact result-backend values checked before prefix matching.
+_RESULT_BACKEND_EXACT = {
+    "django-db": "Database",
+    "django-cache": "Database",
+    "disabled": "Disabled",
+    "rpc": "Disabled",
+}
+
+# (prefix tuple, display label) - prevents if/else madness
+_RESULT_BACKEND_PREFIXES = (
+    (("redis://", "rediss://", "redis+socket://"), "Redis"),
+    (("db+",), "Database"),
+    (("mongodb://",), "MongoDB"),
+    (("cache+",), "Cache"),
+    (("rpc://",), "RPC"),
+    (("s3://",), "Amazon S3"),
+    (("file://",), "Filesystem"),
+)
+
+# (minimum seconds, unit label)
+_RESULT_EXPIRES_UNITS = (
+    (86400, "days"),
+    (3600, "hours"),
+    (60, "minutes"),
+)
+
+
+def classify_broker_type(broker_url):
+    """Return a human-readable broker type for a Celery broker URL."""
+    if not broker_url:
+        return None
+    for prefixes, label in _BROKER_TYPE_PREFIXES:
+        if broker_url.startswith(prefixes):
+            return label
+    return "Other"
+
+
+def classify_result_backend_type(result_backend):
+    """Return a human-readable result-backend type for a Celery result_backend value."""
+    if not result_backend:
+        return None
+    if result_backend in _RESULT_BACKEND_EXACT:
+        return _RESULT_BACKEND_EXACT[result_backend]
+    for prefixes, label in _RESULT_BACKEND_PREFIXES:
+        if result_backend.startswith(prefixes):
+            return label
+    return "Other"
+
+
+def format_result_expires(result_expires):
+    """
+    Humanize a Celery ``result_expires`` value.
+
+    Integer seconds are rendered as days/hours/minutes/seconds; other types
+    fall back to ``str()``. ``None`` is returned unchanged.
+    """
+    if result_expires is None:
+        return None
+    if isinstance(result_expires, int):
+        for divisor, unit in _RESULT_EXPIRES_UNITS:
+            if result_expires >= divisor:
+                return f"{result_expires // divisor} {unit}"
+        return f"{result_expires} seconds"
+    return str(result_expires)
+
+
 class CeleryInspector:
     """
     High level interface celery and celery information. This class will generally
@@ -45,70 +122,14 @@ class CeleryInspector:
             # Get broker URL and determine broker type
             broker_url = self.app.conf.get("broker_url", "")
             config_info["broker_url"] = broker_url
-
-            if broker_url:
-                # Check for Redis broker (redis://, rediss://, redis+socket://)
-                if broker_url.startswith(("redis://", "rediss://", "redis+socket://")):
-                    config_info["broker_type"] = "Redis"
-                # Check for AMQP brokers (amqp://, amqps://, pyamqp://, librabbitmq://)
-                elif broker_url.startswith(
-                    ("amqp://", "amqps://", "pyamqp://", "librabbitmq://")
-                ):
-                    config_info["broker_type"] = "RabbitMQ (AMQP)"
-                # Check for Amazon SQS (sqs://, sqss://)
-                elif broker_url.startswith(("sqs://", "sqss://")):
-                    config_info["broker_type"] = "Amazon SQS"
-                # Check for MongoDB (mongodb://)
-                elif broker_url.startswith("mongodb://"):
-                    config_info["broker_type"] = "MongoDB"
-                # Check for Kafka (kafka://)
-                elif broker_url.startswith("kafka://"):
-                    config_info["broker_type"] = "Apache Kafka"
-                # Check for Azure Service Bus (azureservicebus://)
-                elif broker_url.startswith("azureservicebus://"):
-                    config_info["broker_type"] = "Azure Service Bus"
-                # Check for memory/testing broker (memory://)
-                elif broker_url.startswith("memory://"):
-                    config_info["broker_type"] = "In-Memory"
-                else:
-                    config_info["broker_type"] = "Other"
+            config_info["broker_type"] = classify_broker_type(broker_url)
 
             # Get result backend
             result_backend = self.app.conf.get("result_backend", "")
             config_info["result_backend"] = result_backend
-
-            if result_backend:
-                # Check for Redis backend (redis://, rediss://, redis+socket://)
-                if result_backend.startswith(
-                    ("redis://", "rediss://", "redis+socket://")
-                ):
-                    config_info["result_backend_type"] = "Redis"
-                # Check for database backends (db+, django-db, django-cache)
-                elif result_backend.startswith("db+") or result_backend in (
-                    "django-db",
-                    "django-cache",
-                ):
-                    config_info["result_backend_type"] = "Database"
-                # Check for MongoDB (mongodb://)
-                elif result_backend.startswith("mongodb://"):
-                    config_info["result_backend_type"] = "MongoDB"
-                # Check for cache backends (cache+)
-                elif result_backend.startswith("cache+"):
-                    config_info["result_backend_type"] = "Cache"
-                # Check for RPC backend (rpc://)
-                elif result_backend.startswith("rpc://"):
-                    config_info["result_backend_type"] = "RPC"
-                # Check for S3 backend (s3://)
-                elif result_backend.startswith("s3://"):
-                    config_info["result_backend_type"] = "Amazon S3"
-                # Check for filesystem backend (file://)
-                elif result_backend.startswith("file://"):
-                    config_info["result_backend_type"] = "Filesystem"
-                # Check for disabled backend
-                elif result_backend in ("disabled", "rpc"):
-                    config_info["result_backend_type"] = "Disabled"
-                else:
-                    config_info["result_backend_type"] = "Other"
+            config_info["result_backend_type"] = classify_result_backend_type(
+                result_backend
+            )
 
             # Basic configuration
             config_info["timezone"] = self.app.conf.get("timezone", "UTC")
@@ -161,26 +182,9 @@ class CeleryInspector:
             )
 
             # Result settings
-            result_expires = self.app.conf.get("result_expires")
-            if result_expires is not None:
-                # Convert to human-readable format if it's in seconds
-                if isinstance(result_expires, int):
-                    if result_expires >= 86400:
-                        config_info["result_expires"] = (
-                            f"{result_expires // 86400} days"
-                        )
-                    elif result_expires >= 3600:
-                        config_info["result_expires"] = (
-                            f"{result_expires // 3600} hours"
-                        )
-                    elif result_expires >= 60:
-                        config_info["result_expires"] = (
-                            f"{result_expires // 60} minutes"
-                        )
-                    else:
-                        config_info["result_expires"] = f"{result_expires} seconds"
-                else:
-                    config_info["result_expires"] = str(result_expires)
+            config_info["result_expires"] = format_result_expires(
+                self.app.conf.get("result_expires")
+            )
 
         except Exception:
             # If we can't get config info, just return empty values

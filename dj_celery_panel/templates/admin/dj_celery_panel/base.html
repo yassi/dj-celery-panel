@@ -1,40 +1,27 @@
-{% extends "admin/base_site.html" %}
-{% load i18n admin_urls static admin_list %}
+{% extends "dj_control_room_base/panel_base.html" %}
+{% load i18n static %}
 
-{% block title %}{{ title }} | DJ Celery Panel{% endblock %}
+{% block panel_title %}{{ title|default:"DJ Celery Panel" }}{% endblock %}
 
-{% block extrahead %}
-{{ block.super }}
-{% if dj_cr_load_default_css %}<link rel="stylesheet" href="{% static 'dj_celery_panel/css/styles.css' %}">{% endif %}
-{{ dj_cr_extra_css }}
-{% endblock %}
-
-{% block branding %}
+{% block panel_branding %}
 <h1 id="site-name"><a href="{% url 'dj_celery_panel:index' %}">DJ Celery Panel</a></h1>
 {% endblock %}
 
-{% block messages %}
-{% if messages %}
-<ul class="messagelist">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+{% block panel_breadcrumbs %}
+&rsaquo; <a href="{% url 'dj_celery_panel:index' %}">{% trans "DJ Celery Panel" %}</a>
 {% endblock %}
 
-
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; {% trans 'DJ Celery Panel' %}
-</div>
+{% block panel_styles %}
+<link rel="stylesheet" href="{% static 'dj_celery_panel/css/styles.css' %}">
 {% endblock %}
 
-{% block content %}
-<div>
-    {% include "admin/dj_celery_panel/_tabs.html" %}
-    {% block tab_content %}
-    {% endblock %}
-</div>
+{% block panel_content %}
+<nav class="dcr-tabs dcr-mb-lg">
+  <a href="{% url 'dj_celery_panel:index' %}" class="dcr-tabs__tab{% if current_tab == 'overview' %} active{% endif %}"{% if current_tab == 'overview' %} aria-current="page"{% endif %}>{% trans "Overview" %}</a>
+  <a href="{% url 'dj_celery_panel:workers' %}" class="dcr-tabs__tab{% if current_tab == 'workers' %} active{% endif %}"{% if current_tab == 'workers' %} aria-current="page"{% endif %}>{% trans "Workers" %}</a>
+  <a href="{% url 'dj_celery_panel:tasks' %}" class="dcr-tabs__tab{% if current_tab == 'tasks' %} active{% endif %}"{% if current_tab == 'tasks' %} aria-current="page"{% endif %}>{% trans "Tasks" %}</a>
+  <a href="{% url 'dj_celery_panel:queues' %}" class="dcr-tabs__tab{% if current_tab == 'queues' %} active{% endif %}"{% if current_tab == 'queues' %} aria-current="page"{% endif %}>{% trans "Queues" %}</a>
+  <a href="{% url 'dj_celery_panel:configuration' %}" class="dcr-tabs__tab{% if current_tab == 'configuration' %} active{% endif %}"{% if current_tab == 'configuration' %} aria-current="page"{% endif %}>{% trans "Configuration" %}</a>
+</nav>
+{% block panel_page_content %}{% endblock %}
 {% endblock %}

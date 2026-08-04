@@ -1,160 +1,186 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
+
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "chart" %}
+    </div>
+    <div class="dcr-page-header__body">
+      <h1 class="dcr-page-header__title">{% trans "Task Execution History" %}</h1>
+      <p class="dcr-page-header__subtitle">
+        {% trans "Search and inspect individual task runs." %}
+      </p>
+    </div>
+  </div>
+</div>
 
 {% include "admin/dj_celery_panel/_backend_info.html" %}
 
-<div class="celery-tab-content">
-    <div class="content-main">
-        <div class="module">
-            <h2>{% trans 'Task Execution History' %}</h2>
-            <br />
-            
-            <!-- Search and Filter Form -->
-            <form method="get" class="search-form">
-                <div class="form-row search-form-row">
-                    <div class="search-form-fields">
-                        <div class="search-field-group">
-                            <label for="searchbar">{% trans 'Search' %}</label>
-                            <input 
-                            type="text" 
-                            name="search" 
-                            value="{{ search_query }}" 
-                            placeholder="{% trans 'Search tasks by name...' %}"
-                            id="searchbar"
-                            style="width: 300px;"
-                            >
-                        </div>
-                        {% if show_filters %}
-                        <div class="search-field-group">
-                            <label for="filter-select">{% trans 'Filter by state' %}</label>
-                            <select name="filter" id="filter-select">
-                                {% for filter in task_filters %}
-                                <option value="{% if filter.value %}{{ filter.value }}{% endif %}" {% if filter.selected %}selected{% endif %}>
-                                    {{ filter.label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% endif %}
-                        <div class="search-field-group">
-                            <label>&nbsp;</label>
-                            <input type="submit" value="{% trans 'Search' %}">
-                        </div>
-                    </div>
-                </div>
-            </form>
-        
-        <!-- Tasks Table -->
-        {% if tasks %}
-        <p class="help">{% trans 'Showing' %} {{ tasks|length }} {% trans 'of' %} {{ total_count }} {% trans 'total tasks' %}</p>
-        <div class="results">
-            <table id="result_list">
-                <thead>
-                    <tr>
-                        <th scope="col">{% trans 'Task ID' %}</th>
-                        <th scope="col">{% trans 'Task Name' %}</th>
-                        <th scope="col">{% trans 'Worker' %}</th>
-                        <th scope="col">{% trans 'Status' %}</th>
-                        <th scope="col">{% trans 'Created' %}</th>
-                        <th scope="col">{% trans 'Result' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'dj_celery_panel:task_detail' task.id %}">
-                                <code class="task-name">{{ task.id }}</code>
-                            </a>
-                        </td>
-                        <td>
-                            {% if task.name %}
-                                <code>{{ task.name }}</code>
-                            {% else %}
-                                <span class="config-value-muted">{% trans 'Unknown' %}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.worker %}
-                                {{ task.worker }}
-                            {% else %}
-                                <span class="config-value-muted">{% trans 'Unknown' %}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.status == "SUCCESS" %}
-                                <span class="task-status task-status-success">{% trans 'SUCCESS' %}</span>
-                            {% elif task.status == "FAILURE" %}
-                                <span class="task-status task-status-failure">{% trans 'FAILURE' %}</span>
-                            {% elif task.status == "STARTED" or task.status == "ACTIVE" %}
-                                <span class="task-status task-status-active">{% trans 'ACTIVE' %}</span>
-                            {% elif task.status == "PENDING" %}
-                                <span class="task-status task-status-reserved">{% trans 'PENDING' %}</span>
-                            {% elif task.status == "RESERVED" %}
-                                <span class="task-status task-status-reserved">{% trans 'RESERVED' %}</span>
-                            {% elif task.status == "RETRY" %}
-                                <span class="task-status task-status-retry">{% trans 'RETRY' %}</span>
-                            {% elif task.status == "REVOKED" %}
-                                <span class="task-status task-status-revoked">{% trans 'REVOKED' %}</span>
-                            {% else %}
-                                <span class="task-status">{{ task.status }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ task.date_created|date:"Y-m-d H:i:s" }}</td>
-                        <td>
-                            {% if task.result %}
-                                <span>{{ task.result|slice:":100" }}{% if task.result|length > 100 %}...{% endif %}</span>
-                            {% else %}
-                                <span class="config-value-muted">-</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagination -->
-        {% if total_pages > 1 %}
-        <p class="paginator">
-            {{ tasks|length }} {% trans 'of' %} {{ total_count }} {% trans 'tasks' %}
-            {% if has_previous %}
-                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}">{% trans 'First' %}</a>
-                <a href="?page={{ previous_page }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}" class="prev">{% trans 'Previous' %}</a>
-            {% endif %}
-            <span class="this-page">{{ page }} {% trans 'of' %} {{ total_pages }}</span>
-            {% if has_next %}
-                <a href="?page={{ next_page }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}" class="next">{% trans 'Next' %}</a>
-                <a href="?page={{ total_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}">{% trans 'Last' %}</a>
-            {% endif %}
-        </p>
-        {% endif %}
-        
-        {% else %}
-        <div class="empty-state-row">
-            <div class="empty-state-message">
-                <div class="empty-state-content">
-                    <span class="empty-state-icon">📋</span>
-                    {% if search_query %}
-                        <p class="empty-state-title">{% trans 'No Tasks Found' %}</p>
-                        <p class="empty-state-text">{% trans 'No tasks match your search query.' %}</p>
-                        <a href="{% url 'dj_celery_panel:tasks' %}" class="empty-state-link">{% trans 'Clear search' %}</a>
-                    {% elif current_filter %}
-                        <p class="empty-state-title">{% trans 'No Tasks' %}</p>
-                        <p class="empty-state-text">
-                            {% blocktrans with filter=current_filter %}No {{ filter }} tasks found. Try a different filter or check that workers are running.{% endblocktrans %}
-                        </p>
-                    {% else %}
-                        <p class="empty-state-title">{% trans 'No Tasks' %}</p>
-                        <p class="empty-state-text">{% trans 'No tasks have been executed yet.' %}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-        </div>
+<div class="dcr-data-table">
+
+  <div class="dcr-data-table__header">
+    <div class="dcr-data-table__header-info">
+      <h3 class="dcr-data-table__title">
+        {% trans "Tasks" %}
+        <span class="dcr-badge">{{ tasks|length }} {% trans "OF" %} {{ total_count }}</span>
+      </h3>
     </div>
+  </div>
+
+  <div class="dcr-data-table__controls">
+    <form class="dcr-form" method="get">
+      <div class="dcr-form__group">
+        <label class="dcr-form__label" for="searchbar">{% trans "Search" %}</label>
+        <div class="dcr-form__row--stretch">
+          <div class="dcr-input-group">
+            <svg class="dcr-input-group__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input
+              type="text"
+              id="searchbar"
+              name="search"
+              value="{{ search_query }}"
+              class="dcr-input-group__input"
+              placeholder="{% trans 'Search tasks by name...' %}"
+            >
+          </div>
+          <button type="submit" class="dcr-btn dcr-btn--primary">{% trans "Search" %}</button>
+        </div>
+      </div>
+      {% if show_filters %}
+      <div class="dcr-form__row">
+        <div class="dcr-field">
+          <label class="dcr-field__label" for="filter-select">&#9663; {% trans "Filter by state" %}</label>
+          <select name="filter" id="filter-select" class="dcr-select">
+            {% for filter in task_filters %}
+            <option value="{% if filter.value %}{{ filter.value }}{% endif %}" {% if filter.selected %}selected{% endif %}>
+              {{ filter.label }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="dcr-data-table__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{% trans "Task ID" %}</th>
+          <th>{% trans "Task Name" %}</th>
+          <th>{% trans "Worker" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Created" %}</th>
+          <th>{% trans "Result" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tasks %}
+        {% for task in tasks %}
+        <tr>
+          <td>
+            <a href="{% url 'dj_celery_panel:task_detail' task.id %}" class="dcr-data-table__link">
+              <code class="dcr-code">{{ task.id }}</code>
+            </a>
+          </td>
+          <td>
+            {% if task.name %}
+            <code class="dcr-code">{{ task.name }}</code>
+            {% else %}
+            <span class="dcr-text-muted">{% trans "Unknown" %}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if task.worker %}
+            {{ task.worker }}
+            {% else %}
+            <span class="dcr-text-muted">{% trans "Unknown" %}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if task.status == "SUCCESS" %}
+            <span class="dcr-badge dcr-badge--success">{% trans "SUCCESS" %}</span>
+            {% elif task.status == "FAILURE" %}
+            <span class="dcr-badge dcr-badge--danger">{% trans "FAILURE" %}</span>
+            {% elif task.status == "STARTED" or task.status == "ACTIVE" %}
+            <span class="dcr-badge dcr-badge--info">{% trans "ACTIVE" %}</span>
+            {% elif task.status == "PENDING" %}
+            <span class="dcr-badge dcr-badge--warning">{% trans "PENDING" %}</span>
+            {% elif task.status == "RESERVED" %}
+            <span class="dcr-badge dcr-badge--warning">{% trans "RESERVED" %}</span>
+            {% elif task.status == "RETRY" %}
+            <span class="dcr-badge dcr-badge--warning">{% trans "RETRY" %}</span>
+            {% elif task.status == "REVOKED" %}
+            <span class="dcr-badge dcr-badge--muted">{% trans "REVOKED" %}</span>
+            {% else %}
+            <span class="dcr-badge dcr-badge--muted">{{ task.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ task.date_created|date:"Y-m-d H:i:s" }}</td>
+          <td>
+            {% if task.result %}
+            <span>{{ task.result|slice:":100" }}{% if task.result|length > 100 %}...{% endif %}</span>
+            {% else %}
+            <span class="dcr-text-muted">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="6">
+            <div class="dcr-empty">
+              <h2 class="dcr-empty__title">
+                {% if search_query %}{% trans "No Tasks Found" %}
+                {% else %}{% trans "No Tasks" %}
+                {% endif %}
+              </h2>
+              <p class="dcr-empty__body">
+                {% if search_query %}
+                  {% trans "No tasks match your search query." %}
+                {% elif current_filter %}
+                  {% blocktrans with filter=current_filter %}No {{ filter }} tasks found. Try a different filter or check that workers are running.{% endblocktrans %}
+                {% else %}
+                  {% trans "No tasks have been executed yet." %}
+                {% endif %}
+              </p>
+              {% if search_query %}
+              <div class="dcr-empty__links">
+                <a href="{% url 'dj_celery_panel:tasks' %}" class="dcr-btn dcr-btn--ghost dcr-btn--sm">{% trans "Clear search" %}</a>
+              </div>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_pages > 1 %}
+  <div class="dcr-pagination">
+    <span class="dcr-pagination__summary">
+      {% blocktrans %}Page {{ page }} of {{ total_pages }}{% endblocktrans %}
+    </span>
+    <div class="dcr-pagination__controls">
+      {% if has_previous %}
+      <a href="?page={{ previous_page }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}" class="dcr-pagination__btn dcr-pagination__btn--prev">{% trans "Previous" %}</a>
+      {% else %}
+      <span class="dcr-pagination__btn dcr-pagination__btn--prev" aria-disabled="true">{% trans "Previous" %}</span>
+      {% endif %}
+      <span class="dcr-pagination__page dcr-pagination__page--active">{{ page }}</span>
+      {% if has_next %}
+      <a href="?page={{ next_page }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_filter %}&filter={{ current_filter }}{% endif %}" class="dcr-pagination__btn dcr-pagination__btn--next">{% trans "Next" %}</a>
+      {% else %}
+      <span class="dcr-pagination__btn dcr-pagination__btn--next" aria-disabled="true">{% trans "Next" %}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 </div>
+
 {% endblock %}

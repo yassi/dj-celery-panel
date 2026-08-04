@@ -1,5 +1,7 @@
 # core dependencies
 Django>=4.2
+dj-control-room-base>=1.4.0
+dj-control-room>=1.5.0
 django-celery-results>=2.4.0
 django-celery-beat>=2.8.1
 celery>=5.4.0

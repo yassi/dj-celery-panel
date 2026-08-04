@@ -1,137 +1,142 @@
 {% extends "admin/dj_celery_panel/base.html" %}
-{% load i18n admin_urls static admin_list %}
+{% load i18n static dcr_icons %}
 
-{% block tab_content %}
+{% block panel_page_content %}
 
-<div class="celery-tab-content">
-    <!-- Overview Cards -->
-    <div class="overview-cards">
-        <div class="overview-card">
-            <div class="overview-card-icon">📋</div>
-            <div class="overview-card-content">
-                <div class="overview-card-label">{% trans 'Registered Tasks' %}</div>
-                <div class="overview-card-value">{{ registered_tasks_count }}</div>
-            </div>
-        </div>
-        
-        <div class="overview-card">
-            <div class="overview-card-icon">⏰</div>
-            <div class="overview-card-content">
-                <div class="overview-card-label">{% trans 'Periodic Tasks' %}</div>
-                <div class="overview-card-value">{{ periodic_tasks_count }}</div>
-            </div>
-        </div>
-        
-        <div class="overview-card">
-            <div class="overview-card-icon">⚙️</div>
-            <div class="overview-card-content">
-                <div class="overview-card-label">{% trans 'Broker' %}</div>
-                <div class="overview-card-value-small">{{ config.broker_type|default:"Not configured" }}</div>
-                <a href="{% url 'dj_celery_panel:configuration' %}" class="overview-card-link">{% trans 'Configuration →' %}</a>
-            </div>
-        </div>
-        
-        <div class="overview-card">
-            <div class="overview-card-icon">💾</div>
-            <div class="overview-card-content">
-                <div class="overview-card-label">{% trans 'Result Backend' %}</div>
-                <div class="overview-card-value-small">{{ config.result_backend_type|default:"Not configured" }}</div>
-                <a href="{% url 'dj_celery_panel:configuration' %}" class="overview-card-link">{% trans 'Configuration →' %}</a>
-            </div>
-        </div>
+<div class="dcr-page-header">
+  <div class="dcr-page-header__main">
+    <div class="dcr-page-header__icon dcr-icon-color--success">
+      {% dcr_icon "chart" %}
     </div>
-    
-    <!-- Registered Tasks Section -->
-    <div class="module">
-        <h2>{% trans 'Registered Tasks' %}</h2>
-        {% if registered_tasks %}
-        <div class="results">
-            <table id="result_list">
-                <thead>
-                    <tr>
-                        <th scope="col">{% trans 'Task Name' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in registered_tasks %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task|urlencode }}">
-                                <code class="task-name">{{ task }}</code>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="empty-state-row">
-            <div class="empty-state-message">
-                <div class="empty-state-content">
-                    <span class="empty-state-icon">📋</span>
-                    <p class="empty-state-title">{% trans 'No Registered Tasks' %}</p>
-                    <p class="empty-state-text">{% trans 'No tasks have been registered in the Celery app.' %}</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+    <div class="dcr-page-header__body">
+      <h1 class="dcr-page-header__title">{% trans "Django Celery Panel" %}</h1>
+      <p class="dcr-page-header__subtitle">
+        {% trans "Monitor Celery workers, tasks, and queues at a glance." %}
+      </p>
     </div>
-    
-    <!-- Periodic Tasks Section -->
-    <div id="periodic-section" class="module">
-        <h2>{% trans 'Periodic Tasks Schedule' %}</h2>
-        {% include "admin/dj_celery_panel/_backend_info.html" with backend_info=periodic_backend_info %}
-        {% if periodic_tasks %}
-        <div class="results">
-            <table id="result_list">
-                <thead>
-                    <tr>
-                        <th scope="col">{% trans 'Name' %}</th>
-                        <th scope="col">{% trans 'Task' %}</th>
-                        <th scope="col">{% trans 'Schedule' %}</th>
-                        <th scope="col">{% trans 'Arguments' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in periodic_tasks %}
-                    <tr>
-                        <td><strong>{{ task.name }}</strong></td>
-                        <td>
-                            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task.task|urlencode }}">
-                                <code class="task-name">{{ task.task }}</code>
-                            </a>
-                        </td>
-                        <td>{{ task.schedule }}</td>
-                        <td>
-                            {% if task.args %}
-                                <code>args: {{ task.args }}</code><br>
-                            {% endif %}
-                            {% if task.kwargs %}
-                                <code>kwargs: {{ task.kwargs }}</code>
-                            {% endif %}
-                            {% if not task.args and not task.kwargs %}
-                                <span class="config-value-muted">{% trans 'No arguments' %}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="empty-state-row">
-            <div class="empty-state-message">
-                <div class="empty-state-content">
-                    <span class="empty-state-icon">⏰</span>
-                    <p class="empty-state-title">{% trans 'No Periodic Tasks' %}</p>
-                    <p class="empty-state-text">{% trans 'No periodic tasks have been configured in the beat schedule.' %}</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-    
-
+  </div>
 </div>
+
+<div class="dcr-metric-grid">
+  <div class="dcr-metric">
+    <span class="dcr-metric__label">{% trans "Registered Tasks" %}</span>
+    <span class="dcr-metric__value">{{ registered_tasks_count }}</span>
+  </div>
+  <div class="dcr-metric">
+    <span class="dcr-metric__label">{% trans "Periodic Tasks" %}</span>
+    <span class="dcr-metric__value">{{ periodic_tasks_count }}</span>
+  </div>
+  <div class="dcr-metric">
+    <span class="dcr-metric__label">{% trans "Broker" %}</span>
+    <span class="dcr-metric__value dcr-text-lg">{{ config.broker_type|default:"Not configured" }}</span>
+    <a href="{% url 'dj_celery_panel:configuration' %}" class="dcr-text-xs">{% trans "Configuration" %} &rsaquo;</a>
+  </div>
+  <div class="dcr-metric">
+    <span class="dcr-metric__label">{% trans "Result Backend" %}</span>
+    <span class="dcr-metric__value dcr-text-lg">{{ config.result_backend_type|default:"Not configured" }}</span>
+    <a href="{% url 'dj_celery_panel:configuration' %}" class="dcr-text-xs">{% trans "Configuration" %} &rsaquo;</a>
+  </div>
+</div>
+
+<div class="dcr-data-table">
+  <div class="dcr-data-table__header">
+    <div class="dcr-data-table__header-info">
+      <h3 class="dcr-data-table__title">{% trans "Registered Tasks" %}</h3>
+    </div>
+  </div>
+  <div class="dcr-data-table__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{% trans "Task Name" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if registered_tasks %}
+        {% for task in registered_tasks %}
+        <tr>
+          <td>
+            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task|urlencode }}" class="dcr-data-table__link">
+              <code class="dcr-code">{{ task }}</code>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td>
+            <div class="dcr-empty">
+              <h2 class="dcr-empty__title">{% trans "No Registered Tasks" %}</h2>
+              <p class="dcr-empty__body">{% trans "No tasks have been registered in the Celery app." %}</p>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="dcr-data-table dcr-mt-lg">
+  <div class="dcr-data-table__header">
+    <div class="dcr-data-table__header-info">
+      <h3 class="dcr-data-table__title">{% trans "Periodic Tasks Schedule" %}</h3>
+      {% if periodic_backend_info %}
+      <p class="dcr-data-table__subtitle">
+        {% trans "Backend:" %}
+        <code class="dcr-code">{{ periodic_backend_info.name }}</code>
+        · {{ periodic_backend_info.data_source }}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="dcr-data-table__scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Task" %}</th>
+          <th>{% trans "Schedule" %}</th>
+          <th>{% trans "Arguments" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if periodic_tasks %}
+        {% for task in periodic_tasks %}
+        <tr>
+          <td><strong>{{ task.name }}</strong></td>
+          <td>
+            <a href="{% url 'dj_celery_panel:tasks' %}?search={{ task.task|urlencode }}" class="dcr-data-table__link">
+              <code class="dcr-code">{{ task.task }}</code>
+            </a>
+          </td>
+          <td>{{ task.schedule }}</td>
+          <td>
+            {% if task.args %}
+            <code class="dcr-code">args: {{ task.args }}</code><br>
+            {% endif %}
+            {% if task.kwargs %}
+            <code class="dcr-code">kwargs: {{ task.kwargs }}</code>
+            {% endif %}
+            {% if not task.args and not task.kwargs %}
+            <span class="dcr-text-muted">{% trans "No arguments" %}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="4">
+            <div class="dcr-empty">
+              <h2 class="dcr-empty__title">{% trans "No Periodic Tasks" %}</h2>
+              <p class="dcr-empty__body">{% trans "No periodic tasks have been configured in the beat schedule." %}</p>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% endblock %}

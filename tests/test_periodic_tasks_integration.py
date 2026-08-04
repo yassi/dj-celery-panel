@@ -68,7 +68,7 @@ class TestPeriodicTasksIntegration(CeleryPanelTestCase):
 
         self.assertEqual(response.status_code, 200)
         # Should have the periodic tasks count value (might be 0 or more)
-        self.assertContains(response, "overview-card")
+        self.assertContains(response, "dcr-metric")
         self.assertContains(response, "Periodic Tasks")
 
     def test_backend_info_displayed_for_periodic_tasks(self):
