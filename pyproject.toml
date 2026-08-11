@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dj-celery-panel"
-version = "0.5.0"
+version = "0.6.0"
 description = "A Django Admin panel for browsing and inspecting Celery tasks and workers"
 readme = "README.md"
 license = {text = "MIT"}
@@ -22,6 +22,7 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -36,7 +37,7 @@ classifiers = [
 keywords = ["django", "celery", "admin", "panel", "tasks", "django-celery"]
 dependencies = [
     "Django>=4.2",
-    "dj-control-room-base>=1.4.0",
+    "dj-control-room-base>=1.5.0",
 ]
 
 [project.entry-points."dj_control_room.panels"]

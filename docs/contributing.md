@@ -1,5 +1,4 @@
-# Development
-
+# Contributing
 Contributing to Django Celery Panel or setting up for local development.
 
 ## Prerequisites

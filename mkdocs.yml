@@ -43,7 +43,7 @@ nav:
     - Installation: installation.md
     - Configuration: configuration.md
     - Scopes: scopes.md
-  - Development: development.md
+  - Contributing: contributing.md
 
 markdown_extensions:
   - pymdownx.highlight:

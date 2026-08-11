@@ -87,10 +87,10 @@ Configuration display includes:
 
 ## Quick Links
 
-- [Features](features.md) - Detailed features with screenshots
-- [Installation](installation.md)
-- [Configuration](configuration.md)
-- [Development](development.md)
+- [Features](https://django-control-room.github.io/dj-celery-panel/features/) - Detailed features with screenshots
+- [Installation](https://django-control-room.github.io/dj-celery-panel/installation/)
+- [Configuration](https://django-control-room.github.io/dj-celery-panel/configuration/)
+- [Contributing](https://django-control-room.github.io/dj-celery-panel/contributing/)
 
 ## Requirements
 
