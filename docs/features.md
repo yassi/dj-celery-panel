@@ -331,4 +331,4 @@ Django Celery Panel is perfect for:
 
 - [Installation Guide](installation.md) - Get started with Django Celery Panel
 - [Configuration](configuration.md) - Customize the panel for your needs
-- [Development](development.md) - Contribute or run tests locally
+- [Contributing](contributing.md) - Contribute or run tests locally

@@ -90,7 +90,7 @@ Configuration display includes:
 - [Features](features.md) - Detailed features with screenshots
 - [Installation](installation.md)
 - [Configuration](configuration.md)
-- [Development](development.md)
+- [Contributing](contributing.md)
 
 ## Requirements
 
